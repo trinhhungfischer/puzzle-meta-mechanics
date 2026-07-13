@@ -77,3 +77,45 @@ export async function deleteGame(id: string) {
   await prisma.game.delete({ where: { id } })
   revalidatePath('/admin/games')
 }
+
+export async function createGameWithRelations(data: {
+  title: string;
+  releaseYear: number | null;
+  description: string | null;
+  coverUrl: string | null;
+  genres: string[]; // array of genre ids
+  platforms: { platformId: string; storeUrl: string | null }[];
+  mechanics: { mechanicId: string; role: string; note: string | null }[];
+}) {
+  const { title, releaseYear, description, coverUrl, genres, platforms, mechanics } = data
+  if (!title) return
+
+  await prisma.game.create({
+    data: {
+      title,
+      slug: slugify(title),
+      releaseYear,
+      description,
+      coverUrl,
+      genres: {
+        connect: genres.map(id => ({ id }))
+      },
+      platforms: {
+        create: platforms.map(p => ({
+          platformId: p.platformId,
+          storeUrl: p.storeUrl
+        }))
+      },
+      mechanics: {
+        create: mechanics.map(m => ({
+          mechanicId: m.mechanicId,
+          role: m.role,
+          note: m.note
+        }))
+      }
+    }
+  })
+  
+  revalidatePath('/admin/games')
+}
+
