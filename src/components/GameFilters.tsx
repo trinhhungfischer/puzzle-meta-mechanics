@@ -30,7 +30,7 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
     const m = newFilters.mechanics !== undefined ? newFilters.mechanics : currentMechanics
     m.forEach((mech: string) => params.append('mechanic', mech))
 
-    router.push(\`/?\${params.toString()}\`)
+    router.push(`/?${params.toString()}`)
   }
 
   const toggleMechanic = (slug: string) => {

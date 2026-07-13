@@ -17,7 +17,7 @@ export default function RootLayout({
       <body>
         <nav style={{ padding: '1rem 2rem', borderBottom: 'var(--border-width) solid var(--border-color)', marginBottom: '2rem', display: 'flex', gap: '1rem', backgroundColor: 'var(--bg-box)' }}>
           <Link href="/" className="btn" style={{ border: 'none', padding: '0.5rem' }}>Home</Link>
-          <Link href="/games" className="btn" style={{ border: 'none', padding: '0.5rem' }}>Games</Link>
+          <Link href="/genres" className="btn" style={{ border: 'none', padding: '0.5rem' }}>Genres</Link>
           <Link href="/mechanics" className="btn" style={{ border: 'none', padding: '0.5rem' }}>Mechanics</Link>
         </nav>
         {children}

@@ -78,7 +78,7 @@ export default function ImportPage() {
       </form>
 
       {status && (
-        <div style={{ marginTop: '2rem', padding: '1rem', background: status.startsWith('Error') ? 'rgba(255,0,0,0.1)' : 'rgba(0,255,0,0.1)', borderLeft: \`4px solid \${status.startsWith('Error') ? 'red' : 'green'}\` }}>
+        <div style={{ marginTop: '2rem', padding: '1rem', background: status.startsWith('Error') ? 'rgba(255,0,0,0.1)' : 'rgba(0,255,0,0.1)', borderLeft: `4px solid ${status.startsWith('Error') ? 'red' : 'green'}` }}>
           {status}
         </div>
       )}

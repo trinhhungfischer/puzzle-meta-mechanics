@@ -52,7 +52,7 @@ export default async function GenreDetailPage({
               <Link href={`/games/${game.slug}`} key={game.id} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="thinky-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   {game.coverUrl ? (
-                    <img src={game.coverUrl} alt={`${game.title} cover`} style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '4px 4px 0 0', margin: '-1rem -1rem 1rem -1rem', width: 'calc(100% + 2rem)' }} />
+                    <img src={game.coverUrl} alt={`${game.title} cover`} style={{ height: '180px', objectFit: 'cover', borderRadius: '4px 4px 0 0', margin: '-1rem -1rem 1rem -1rem', width: 'calc(100% + 2rem)' }} />
                   ) : (
                     <div style={{ width: 'calc(100% + 2rem)', height: '180px', backgroundColor: 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px 4px 0 0', margin: '-1rem -1rem 1rem -1rem' }}>
                       <span style={{ fontSize: '3rem', opacity: 0.5 }}>{game.title[0]}</span>

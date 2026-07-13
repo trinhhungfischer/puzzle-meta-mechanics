@@ -82,7 +82,7 @@ export default async function MechanicDetailPage({
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
             {mechanic.games.map(gm => (
               <div key={gm.id} className="thinky-card" style={{ padding: '1rem' }}>
-                <Link href={\`/games/\${gm.game.slug}\`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link href={`/games/${gm.game.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-yellow)' }}>{gm.game.title}</h3>
                 </Link>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>

@@ -57,7 +57,7 @@ export default async function MechanicsPublicPage({
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
             {group.mechanics.map(mechanic => (
-              <Link href={\`/mechanics/\${mechanic.slug}\`} key={mechanic.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Link href={`/mechanics/${mechanic.slug}`} key={mechanic.id} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="thinky-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--color-purple)' }}>{mechanic.name}</h3>
                   <p style={{ opacity: 0.8, fontSize: '0.9rem', marginBottom: '1rem' }}>

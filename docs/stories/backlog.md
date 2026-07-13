@@ -23,10 +23,48 @@ Decisions locked at intake (2026-07-13):
 
 | Epic | Description | Status |
 | --- | --- | --- |
-| E01 Domain schema & seed | Prisma schema v1 + one-time taxonomy seed | sliced |
-| E02 Admin curation | `/admin` CRUD + JSON bulk import | sliced |
-| E03 Viewer catalog | Public-ready browse/search/detail pages | sliced |
-| E04 Insight & public readiness | Derived relations, auth, deploy | sliced (deferred) |
+| E01 Domain schema & seed | Prisma schema v1 + one-time taxonomy seed | done |
+| E02 Admin curation | `/admin` CRUD + JSON bulk import | in progress |
+| E03 Viewer catalog | Public-ready browse/search/detail pages | built (blocked by E05-001) |
+| E04 Insight & public readiness | Derived relations, auth, deploy | deferred |
+| E05 Stabilization | Build fixes, edit flows, cleanup found during review | new |
+
+## Progress review (2026-07-13)
+
+Most of the catalog was implemented between sessions. Verified against code +
+`dev.db` (10 groups, 154 mechanics, 8 genres, 7 platforms, 0 games seeded):
+
+| ID | State | Notes |
+| --- | --- | --- |
+| US-001 | done | schema.prisma matches ADR 0008; migration + data present |
+| US-002 | done | `prisma/seed.ts` parses chapter 3 index; `scripts/seed_from_pdf.ts` is stale/dead |
+| US-003 | partial | create + delete + list done; **no edit**; create-only relation editor |
+| US-004 | partial | create + delete for all entities; **no media/constraints editor**; no edit |
+| US-005 | partial | import route upserts, but no dry-run, no validation report, silent Uncategorized group |
+| US-006 | done | home filters (genre × platform × mechanics) + text search |
+| US-007 | done | `games/[slug]` with platforms, genres, mechanic usages by role |
+| US-008 | done | `mechanics/` grouped by MechanicGroup + search |
+| US-009 | done | `mechanics/[slug]` with definition, constraints, media, games-using |
+| US-010 | done | `genres/` + `genres/[slug]` |
+| US-011 | not started | related games / co-occurring mechanics |
+| US-012 | not started | admin auth |
+| US-013 | not started | validation ladder scripts |
+
+**Blocker:** the app does not build. Five files contain literal
+backslash-escaped backticks (`\`...\``) instead of template literals:
+`src/app/page.tsx`, `src/app/mechanics/page.tsx`,
+`src/app/mechanics/[slug]/page.tsx`, `src/app/admin/import/page.tsx`,
+`src/components/GameFilters.tsx`. `tsc` and `next build` fail until fixed.
+
+### E05 Stabilization (new — found during review)
+
+| ID | Story | Lane | Notes |
+| --- | --- | --- | --- |
+| US-014 | Fix escaped backticks in 5 files so `next build` passes | normal | **Highest priority — blocks running the app** |
+| US-015 | Add edit flow for games, mechanics, groups, genres, platforms | normal | Completes US-003/US-004; delete+recreate currently loses relations |
+| US-016 | Mechanic admin editor for `mediaUrls` + `constraints` JSON | tiny | Completes US-004; fields exist in schema + detail page only |
+| US-017 | JSON import dry-run + validation report + surface Uncategorized mechanics | normal | Completes US-005 |
+| US-018 | Fix nav (`/games` 404) and delete dead files: root `actions.ts`, `Brainstorm.tsx`, `MechanicSelector.tsx`, `scripts/seed_from_pdf.ts` | tiny | Nav points to a non-existent index route |
 
 ## Stories
 
