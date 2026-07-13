@@ -1,0 +1,207 @@
+:root {
+  --bg-color: #f4f4f4;
+  --bg-box: #ffffff;
+  --text-primary: #111111;
+  --text-secondary: #555555;
+  --border-color: #000000;
+  --border-width: 2px;
+  --accent-color: #111111;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #111111;
+    --bg-box: #1a1a1a;
+    --text-primary: #f4f4f4;
+    --text-secondary: #aaaaaa;
+    --border-color: #f4f4f4;
+    --border-width: 2px;
+    --accent-color: #ffffff;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  padding: 2rem;
+}
+
+/* Bento Box Grid */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bento-box {
+  background-color: var(--bg-box);
+  border: var(--border-width) solid var(--border-color);
+  padding: 1.5rem;
+  /* Sharp corners */
+  border-radius: 0; 
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.bento-box:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 4px 4px 0 var(--border-color);
+}
+
+.bento-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: var(--border-width) solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.btn {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  border: var(--border-width) solid var(--border-color);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  border-radius: 0;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background-color: var(--text-primary);
+  color: var(--bg-color);
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: transparent;
+  border: var(--border-width) solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 0;
+  margin-bottom: 1rem;
+  font-family: inherit;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Colorful Variations for Bento Box */
+.color-blue {
+  background-color: rgba(0, 150, 255, 0.08);
+  border-color: #0096ff;
+}
+.color-blue .bento-header { border-color: #0096ff; color: #0096ff; }
+.color-blue:hover { box-shadow: 4px 4px 0 #0096ff; }
+
+.color-purple {
+  background-color: rgba(180, 0, 255, 0.08);
+  border-color: #b400ff;
+}
+.color-purple .bento-header { border-color: #b400ff; color: #b400ff; }
+.color-purple:hover { box-shadow: 4px 4px 0 #b400ff; }
+
+.color-green {
+  background-color: rgba(0, 255, 128, 0.08);
+  border-color: #00ff80;
+}
+.color-green .bento-header { border-color: #00ff80; color: #00ff80; }
+.color-green:hover { box-shadow: 4px 4px 0 #00ff80; }
+
+.color-yellow {
+  background-color: rgba(255, 200, 0, 0.08);
+  border-color: #ffc800;
+}
+.color-yellow .bento-header { border-color: #ffc800; color: #ffc800; }
+.color-yellow:hover { box-shadow: 4px 4px 0 #ffc800; }
+
+/* ThinkyGames Style Cards */
+.thinky-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-box);
+  border: var(--border-width) solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.thinky-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 6px 6px 0 var(--border-color);
+}
+
+.thinky-cover {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-bottom: var(--border-width) solid var(--border-color);
+  background: linear-gradient(135deg, rgba(0,255,128,0.2), rgba(0,150,255,0.2));
+}
+
+.thinky-content {
+  padding: 1.25rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.thinky-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.thinky-meta {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.thinky-desc {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  opacity: 0.8;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.thinky-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mechanic-pill {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--text-primary);
+  color: var(--bg-color);
+  border-radius: 9999px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
