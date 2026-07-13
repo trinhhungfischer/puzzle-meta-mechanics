@@ -141,7 +141,17 @@ export async function deleteGame(id: string) {
   revalidatePath('/admin/games')
 }
 
-export async function createGameWithRelations(data: {
+// Metric fields shared by create/update. All optional; blank inputs stay null.
+type GameMetrics = {
+  ratingScore: number | null;
+  ratingCount: number | null;
+  downloads: number | null;
+  reviewCount: number | null;
+  price: number | null;
+  isFree: boolean;
+}
+
+type GameInput = {
   title: string;
   releaseYear: number | null;
   description: string | null;
@@ -149,8 +159,11 @@ export async function createGameWithRelations(data: {
   genres: string[]; // array of genre ids
   platforms: { platformId: string; storeUrl: string | null }[];
   mechanics: { mechanicId: string; role: string; note: string | null }[];
-}) {
-  const { title, releaseYear, description, coverUrl, genres, platforms, mechanics } = data
+} & GameMetrics
+
+export async function createGameWithRelations(data: GameInput) {
+  const { title, releaseYear, description, coverUrl, genres, platforms, mechanics,
+          ratingScore, ratingCount, downloads, reviewCount, price, isFree } = data
   if (!title) return
 
   await prisma.game.create({
@@ -160,6 +173,7 @@ export async function createGameWithRelations(data: {
       releaseYear,
       description,
       coverUrl,
+      ratingScore, ratingCount, downloads, reviewCount, price, isFree,
       genres: {
         connect: genres.map(id => ({ id }))
       },
@@ -178,20 +192,13 @@ export async function createGameWithRelations(data: {
       }
     }
   })
-  
+
   revalidatePath('/admin/games')
 }
 
-export async function updateGameWithRelations(id: string, data: {
-  title: string;
-  releaseYear: number | null;
-  description: string | null;
-  coverUrl: string | null;
-  genres: string[];
-  platforms: { platformId: string; storeUrl: string | null }[];
-  mechanics: { mechanicId: string; role: string; note: string | null }[];
-}) {
-  const { title, releaseYear, description, coverUrl, genres, platforms, mechanics } = data
+export async function updateGameWithRelations(id: string, data: GameInput) {
+  const { title, releaseYear, description, coverUrl, genres, platforms, mechanics,
+          ratingScore, ratingCount, downloads, reviewCount, price, isFree } = data
   if (!title) return
 
   // To update relations, we clear existing explicit links and recreate them
@@ -206,6 +213,7 @@ export async function updateGameWithRelations(id: string, data: {
       releaseYear,
       description,
       coverUrl,
+      ratingScore, ratingCount, downloads, reviewCount, price, isFree,
       genres: {
         set: [], // clear existing
         connect: genres.map(gid => ({ id: gid }))
@@ -225,7 +233,7 @@ export async function updateGameWithRelations(id: string, data: {
       }
     }
   })
-  
+
   revalidatePath('/admin/games')
   revalidatePath(`/games/${slugify(title)}`)
 }

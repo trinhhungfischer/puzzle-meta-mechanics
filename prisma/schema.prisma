@@ -56,13 +56,30 @@ model Game {
   title       String         @unique
   slug        String         @unique
   releaseYear Int?
+  releaseDate DateTime?
   description String?
   coverUrl    String?
-  mechanics   GameMechanic[]
-  genres      Genre[] // Implicit m:n relation
-  platforms   GamePlatform[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+
+  // Aggregate metrics for filtering/sorting (US-024).
+  // These are blended, per-game rollups. When the crawler lands (US-025),
+  // per-store values may live on GamePlatform with these kept as the aggregate.
+  ratingScore   Float? //  normalized 0-100
+  ratingCount   Int?
+  downloads     Int?
+  reviewCount   Int?
+  price         Float? //  in USD; null = unknown
+  isFree        Boolean   @default(false)
+  lastCrawledAt DateTime? //  provenance: when metrics were last refreshed
+
+  mechanics GameMechanic[]
+  genres    Genre[] // Implicit m:n relation
+  platforms GamePlatform[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([ratingScore])
+  @@index([downloads])
+  @@index([isFree])
 }
 
 model GameMechanic {

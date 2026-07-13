@@ -12,7 +12,11 @@ export default async function Home({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined
   const genre = typeof resolvedParams.genre === 'string' ? resolvedParams.genre : undefined
   const platform = typeof resolvedParams.platform === 'string' ? resolvedParams.platform : undefined
-  
+  const minRatingRaw = typeof resolvedParams.minRating === 'string' ? Number(resolvedParams.minRating) : NaN
+  const minRating = Number.isFinite(minRatingRaw) && minRatingRaw > 0 ? minRatingRaw : undefined
+  const freeOnly = resolvedParams.free === '1'
+  const sort = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : 'title'
+
   let mechanics: string[] = []
   if (typeof resolvedParams.mechanic === 'string') {
     mechanics = resolvedParams.mechanic.split(',').filter(Boolean)
@@ -21,28 +25,45 @@ export default async function Home({
   }
 
   const where: any = {}
-  
+
   if (q) {
     where.title = { contains: q }
   }
-  
+
   if (genre) {
     where.genres = { some: { slug: genre } }
   }
-  
+
   if (platform) {
     where.platforms = { some: { platform: { slug: platform } } }
   }
-  
+
+  if (minRating !== undefined) {
+    where.ratingScore = { gte: minRating }
+  }
+
+  if (freeOnly) {
+    where.isFree = true
+  }
+
   if (mechanics.length > 0) {
     where.AND = mechanics.map(mechSlug => ({
       mechanics: { some: { mechanic: { slug: mechSlug } } }
     }))
   }
 
+  // SQLite sorts NULLs first ascending / last descending, so metric desc sorts
+  // put games with no data at the bottom — the behaviour we want.
+  const orderBy: any =
+    sort === 'rating' ? { ratingScore: 'desc' } :
+    sort === 'downloads' ? { downloads: 'desc' } :
+    sort === 'reviews' ? { reviewCount: 'desc' } :
+    sort === 'year' ? { releaseYear: 'desc' } :
+    { title: 'asc' }
+
   const games = await prisma.game.findMany({
     where,
-    orderBy: { title: 'asc' },
+    orderBy,
     include: {
       genres: true,
       platforms: { include: { platform: true } },
@@ -75,14 +96,17 @@ export default async function Home({
       <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
         {/* Sidebar Filters */}
         <aside className="w-full md:w-72 flex-shrink-0">
-          <GameFilters 
-            genres={allGenres} 
-            platforms={allPlatforms} 
-            mechanics={allMechanics} 
+          <GameFilters
+            genres={allGenres}
+            platforms={allPlatforms}
+            mechanics={allMechanics}
             currentQ={q}
             currentGenre={genre}
             currentPlatform={platform}
             currentMechanics={mechanics}
+            currentSort={sort}
+            currentMinRating={minRating}
+            currentFreeOnly={freeOnly}
           />
         </aside>
 

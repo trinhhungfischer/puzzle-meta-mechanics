@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 
-type Option = { label: string; value: string }
+type Option = { label: string; value: string; icon?: React.ReactNode }
 
 type DropdownProps = {
   options: Option[]
@@ -66,7 +66,8 @@ export function Dropdown({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between bg-zinc-900/80 border border-white/10 rounded-xl px-4 py-3 text-zinc-100 outline-none transition-all focus:border-brand-violet focus:ring-1 focus:ring-brand-violet hover:bg-zinc-800/80"
       >
-        <span className={selectedOption ? 'text-zinc-100 font-medium' : 'text-zinc-500'}>
+        <span className={`flex items-center gap-2 ${selectedOption ? 'text-zinc-100 font-medium' : 'text-zinc-500'}`}>
+          {selectedOption?.icon}
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <span className="text-zinc-500 text-xs ml-2">&#9660;</span>
@@ -88,10 +89,11 @@ export function Dropdown({
               key={option.value}
               type="button"
               onClick={() => handleSelect(option.value)}
-              className={`w-full text-left px-4 py-2 hover:bg-white/5 transition-colors ${
+              className={`w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-white/5 transition-colors ${
                 value === option.value ? 'text-brand-violet font-bold bg-brand-violet/10' : 'text-zinc-200'
               }`}
             >
+              {option.icon}
               {option.label}
             </button>
           ))}

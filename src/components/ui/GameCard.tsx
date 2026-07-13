@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Pill } from './Pill'
+import { PlatformIcon } from './PlatformIcon'
 
 type GameCardProps = {
   game: {
@@ -10,6 +11,7 @@ type GameCardProps = {
     coverUrl?: string | null
     genres?: { id: string; name: string }[]
     mechanics?: { mechanicId: string; mechanic?: { id: string; name: string }, role: string }[]
+    platforms?: { platformId: string; platform: { id: string; name: string } }[]
   }
 }
 
@@ -37,9 +39,15 @@ export function GameCard({ game }: GameCardProps) {
 
         {/* Content */}
         <div className="p-5 flex-grow flex flex-col relative z-10 -mt-8">
-          <h2 className="text-xl font-bold tracking-tight mb-3 leading-tight drop-shadow-md text-white group-hover:text-brand-cyan transition-colors">
+          <h2 className="text-xl font-bold tracking-tight mb-2 leading-tight drop-shadow-md text-white group-hover:text-brand-cyan transition-colors">
             {game.title}
           </h2>
+
+          <div className="flex flex-wrap items-center gap-3 mb-3 text-zinc-400">
+            {game.platforms?.map(p => (
+              <PlatformIcon key={p.platformId} name={p.platform.name} className="w-4 h-4" />
+            ))}
+          </div>
 
           <div className="flex flex-wrap gap-1.5 mb-4">
             {game.genres?.map(g => (

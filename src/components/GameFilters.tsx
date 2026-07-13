@@ -5,6 +5,7 @@ import { BentoBox } from '@/components/ui/BentoBox'
 import { Button } from '@/components/ui/Button'
 import { Dropdown } from '@/components/ui/Dropdown'
 import { MultiSelect } from '@/components/ui/MultiSelect'
+import { PlatformIcon } from '@/components/ui/PlatformIcon'
 import { useState, useEffect } from 'react'
 
 type Props = {
@@ -15,25 +16,34 @@ type Props = {
   currentGenre?: string
   currentPlatform?: string
   currentMechanics: string[]
+  currentSort?: string
+  currentMinRating?: number
+  currentFreeOnly?: boolean
 }
 
-export default function GameFilters({ genres, platforms, mechanics, currentQ, currentGenre, currentPlatform, currentMechanics }: Props) {
+export default function GameFilters({ genres, platforms, mechanics, currentQ, currentGenre, currentPlatform, currentMechanics, currentSort, currentMinRating, currentFreeOnly }: Props) {
   const router = useRouter()
-  
+
   const [localQ, setLocalQ] = useState(currentQ || '')
   const [localGenre, setLocalGenre] = useState(currentGenre || '')
   const [localPlatform, setLocalPlatform] = useState(currentPlatform || '')
   const [localMechanics, setLocalMechanics] = useState<string[]>(currentMechanics || [])
+  const [localSort, setLocalSort] = useState(currentSort || 'title')
+  const [localMinRating, setLocalMinRating] = useState(currentMinRating ? String(currentMinRating) : '')
+  const [localFreeOnly, setLocalFreeOnly] = useState(currentFreeOnly || false)
 
   // Sync state if props change from a direct URL hit (e.g. user uses back/forward browser buttons)
   useEffect(() => { setLocalQ(currentQ || '') }, [currentQ])
   useEffect(() => { setLocalGenre(currentGenre || '') }, [currentGenre])
   useEffect(() => { setLocalPlatform(currentPlatform || '') }, [currentPlatform])
   useEffect(() => { setLocalMechanics(currentMechanics || []) }, [currentMechanics])
+  useEffect(() => { setLocalSort(currentSort || 'title') }, [currentSort])
+  useEffect(() => { setLocalMinRating(currentMinRating ? String(currentMinRating) : '') }, [currentMinRating])
+  useEffect(() => { setLocalFreeOnly(currentFreeOnly || false) }, [currentFreeOnly])
 
   const updateFilters = (newFilters: { [key: string]: any }) => {
     const params = new URLSearchParams()
-    
+
     const q = newFilters.q !== undefined ? newFilters.q : localQ
     if (q) params.set('q', q)
 
@@ -47,6 +57,15 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
     if (m && m.length > 0) {
       params.set('mechanic', m.join(','))
     }
+
+    const sort = newFilters.sort !== undefined ? newFilters.sort : localSort
+    if (sort && sort !== 'title') params.set('sort', sort)
+
+    const minRating = newFilters.minRating !== undefined ? newFilters.minRating : localMinRating
+    if (minRating) params.set('minRating', minRating)
+
+    const freeOnly = newFilters.freeOnly !== undefined ? newFilters.freeOnly : localFreeOnly
+    if (freeOnly) params.set('free', '1')
 
     router.push(`/?${params.toString()}`, { scroll: false })
   }
@@ -77,9 +96,35 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
     updateFilters({ mechanics: vals })
   }
 
+  const handleSortChange = (val: string) => {
+    setLocalSort(val)
+    updateFilters({ sort: val })
+  }
+
+  const handleMinRatingChange = (val: string) => {
+    setLocalMinRating(val)
+    updateFilters({ minRating: val })
+  }
+
+  const handleFreeOnlyChange = (val: boolean) => {
+    setLocalFreeOnly(val)
+    updateFilters({ freeOnly: val })
+  }
+
   const genreOptions = genres.map(g => ({ label: g.name, value: g.slug }))
-  const platformOptions = platforms.map(p => ({ label: p.name, value: p.slug }))
+  const platformOptions = platforms.map(p => ({ 
+    label: p.name, 
+    value: p.slug,
+    icon: <PlatformIcon name={p.name} className="w-4 h-4" />
+  }))
   const mechanicOptions = mechanics.map(m => ({ label: m.name, value: m.slug }))
+  const sortOptions = [
+    { label: 'Title (A-Z)', value: 'title' },
+    { label: 'Rating (high → low)', value: 'rating' },
+    { label: 'Downloads (high → low)', value: 'downloads' },
+    { label: 'Reviews (high → low)', value: 'reviews' },
+    { label: 'Release year (new → old)', value: 'year' },
+  ]
 
   return (
     <BentoBox color="blue" header="Filters" className="sticky top-8">
@@ -131,16 +176,54 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
         />
       </div>
       
+      <div className="mb-6">
+        <label className="block text-sm font-bold mb-2 text-zinc-300">Sort By</label>
+        <Dropdown
+          options={sortOptions}
+          value={localSort}
+          onChange={handleSortChange}
+          placeholder="Title (A-Z)"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-bold mb-2 text-zinc-300">Min Rating (0-100)</label>
+        <input
+          type="number"
+          min="0"
+          max="100"
+          placeholder="e.g. 80"
+          value={localMinRating}
+          onChange={(e) => handleMinRatingChange(e.target.value)}
+          className="w-full bg-zinc-900/80 border-white/10"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-zinc-300">
+          <input
+            type="checkbox"
+            checked={localFreeOnly}
+            onChange={(e) => handleFreeOnlyChange(e.target.checked)}
+            className="w-4 h-4 accent-brand-violet"
+          />
+          Free games only
+        </label>
+      </div>
+
       <div className="mt-8">
-        <Button 
+        <Button
           variant="ghost"
-          onClick={() => { 
+          onClick={() => {
             setLocalQ('')
             setLocalGenre('')
             setLocalPlatform('')
             setLocalMechanics([])
-            router.push('/', { scroll: false }) 
-          }} 
+            setLocalSort('title')
+            setLocalMinRating('')
+            setLocalFreeOnly(false)
+            router.push('/', { scroll: false })
+          }}
           className="w-full bg-white/5 border-white/10 hover:bg-white/10"
         >
           Clear All Filters

@@ -31,6 +31,13 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     
+    const num = (key: string): number | null => {
+      const v = formData.get(key) as string | null
+      if (v === null || v.trim() === '') return null
+      const n = Number(v)
+      return Number.isFinite(n) ? n : null
+    }
+
     const data = {
       title: formData.get('title') as string,
       releaseYear: formData.get('releaseYear') ? parseInt(formData.get('releaseYear') as string) : null,
@@ -38,7 +45,13 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
       coverUrl: formData.get('coverUrl') as string,
       genres: selectedGenres,
       platforms: selectedPlatforms,
-      mechanics: selectedMechanics
+      mechanics: selectedMechanics,
+      ratingScore: num('ratingScore'),
+      ratingCount: num('ratingCount'),
+      downloads: num('downloads'),
+      reviewCount: num('reviewCount'),
+      price: num('price'),
+      isFree: formData.get('isFree') === 'on',
     }
 
     if (initialData) {
@@ -68,6 +81,21 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
         </div>
         <input type="text" name="coverUrl" defaultValue={initialData?.coverUrl || ''} placeholder="Cover Image URL" className="w-full mb-4" />
         <textarea name="description" defaultValue={initialData?.description || ''} placeholder="Description" rows={3} className="w-full" />
+      </BentoBox>
+
+      {/* Metrics (US-024) — aggregate signals for filtering/sorting. Optional. */}
+      <BentoBox color="green" header="Metrics">
+        <div className="flex flex-wrap gap-4">
+          <input type="number" step="0.1" min="0" max="100" name="ratingScore" defaultValue={initialData?.ratingScore ?? ''} placeholder="Rating score (0-100)" className="flex-1 min-w-[160px]" />
+          <input type="number" min="0" name="ratingCount" defaultValue={initialData?.ratingCount ?? ''} placeholder="Rating count" className="flex-1 min-w-[160px]" />
+          <input type="number" min="0" name="reviewCount" defaultValue={initialData?.reviewCount ?? ''} placeholder="Review count" className="flex-1 min-w-[160px]" />
+          <input type="number" min="0" name="downloads" defaultValue={initialData?.downloads ?? ''} placeholder="Downloads" className="flex-1 min-w-[160px]" />
+          <input type="number" step="0.01" min="0" name="price" defaultValue={initialData?.price ?? ''} placeholder="Price (USD)" className="flex-1 min-w-[160px]" />
+          <label className="flex items-center gap-2 cursor-pointer px-2">
+            <input type="checkbox" name="isFree" defaultChecked={initialData?.isFree ?? false} className="w-4 h-4 accent-brand-fuchsia" />
+            <span className="text-zinc-300">Free</span>
+          </label>
+        </div>
       </BentoBox>
 
       {/* Genres */}

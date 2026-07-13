@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { Pill } from '@/components/ui/Pill'
 import { BentoBox } from '@/components/ui/BentoBox'
+import { PlatformIcon } from '@/components/ui/PlatformIcon'
 
 export default async function GameDetailPage({
   params,
@@ -82,12 +83,14 @@ export default async function GameDetailPage({
             {game.platforms.map(p => (
               p.storeUrl ? (
                 <a key={p.id} href={p.storeUrl} target="_blank" rel="noreferrer" className="no-underline">
-                  <Pill color="blue" className="!text-sm !px-4 !py-1.5">
+                  <Pill color="blue" className="!text-sm !px-4 !py-1.5 flex items-center gap-2">
+                    <PlatformIcon name={p.platform.name} className="w-4 h-4" />
                     {p.platform.name} <span className="ml-1 opacity-50">↗</span>
                   </Pill>
                 </a>
               ) : (
-                <Pill key={p.id} color="blue" className="!text-sm !px-4 !py-1.5 opacity-80">
+                <Pill key={p.id} color="blue" className="!text-sm !px-4 !py-1.5 opacity-80 flex items-center gap-2">
+                  <PlatformIcon name={p.platform.name} className="w-4 h-4" />
                   {p.platform.name}
                 </Pill>
               )

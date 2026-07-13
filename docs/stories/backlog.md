@@ -152,3 +152,76 @@ US-010 → US-005 → E04.
 | US-021 | Seed starter games from PDF examples | done | 12 representative games created |
 | US-022 | Fix Game Filters UX (scroll to top & overlapping mechanics) | done | Updated query params behavior to support comma-separated mechanic array and disabled scroll |
 | US-023 | Fix Next.js 15+ asynchronous `params` in all dynamic routes | done | Resolved crash when opening detail pages |
+| US-024 | Polish UI: Update Android/iOS icons and add icons to Platform filter dropdown | done | Replaced Smartphone with Bot, added icon property to Dropdown Option |
+
+### E07 Scale & data enrichment (new — 2026-07-13)
+
+Goal: grow the catalog from a hand-curated set to a large crawled dataset, with
+richer per-game signals so filtering/sorting can be more precise.
+
+| ID | Story | Lane | Notes |
+| --- | --- | --- | --- |
+| US-024 | Add game metric fields for richer filtering/sorting | **done** | Aggregate metrics on `Game` + sort/minRating/free filters; verified e2e. Per-platform metrics deferred to crawler (US-025) |
+| US-025 | Crawler / ingestion pipeline for external game data | high-risk | Fetch store data (Steam / App Store / Google Play); needs ADR (ToS, scheduling, dedupe, source-of-truth) |
+| US-027 | Migrate SQLite → Postgres as system of record | high-risk | **The real scale lever.** SQLite is single-writer; a crawler writing while the app reads will contend. Needs ADR + migration plan |
+| US-026 | Raw-crawl staging store (Postgres JSONB, or MongoDB if kept separate) | high-risk | Reframed after advice: NoSQL is NOT the primary DB. Staging only, ETL into Postgres. Do only if crawl payloads are messy enough to warrant it |
+
+**Recommendation (2026-07-13, owner asked to advise):** keep the relational
+store as system of record; the genuine scale move is US-027 (Postgres), not a
+NoSQL primary DB. A puzzle catalog even fully crawled is ~tens of thousands of
+rows — well within Postgres. Use a document/JSONB layer only as a *raw-crawl
+staging area* (US-026), and add a search engine (Meilisearch/Typesense) only if
+filtering is *measured* slow at scale — not preemptively. Suggested order:
+US-024 → US-027 → US-025 → (US-026 if needed) → search engine (only if measured).
+An ADR should record the "relational stays primary; NoSQL is staging-only"
+decision before US-026/US-027 start.
+
+#### US-024 — Game metric fields
+
+**Goal.** Add quantitative signals to games so the index can filter and sort by
+popularity/quality, not just genre/platform/mechanic.
+
+**Candidate fields:**
+
+- `ratingScore` (normalized 0–100) and `ratingCount`
+- `downloads` (or a bucket enum: <10k / 10k–100k / 100k–1M / 1M+)
+- `reviewCount`
+- `price` + `isFree` (or a price band)
+- `popularity`/`wishlist` rank (optional)
+- `releaseDate` (finer than the current `releaseYear`)
+- `lastCrawledAt` provenance timestamp
+- new filter/sort UI on the games index (min rating, free-only, sort by
+  downloads/rating)
+
+**Open modeling decision (needs resolving before schema change):** ratings and
+downloads are **per store/platform**, not per game (Steam rating ≠ Play Store
+rating). Options: (a) put metrics on `GamePlatform` and show an aggregate on the
+game card, (b) denormalize an aggregate onto `Game` for fast filtering plus
+per-platform detail on `GamePlatform`, (c) keep a single blended number on
+`Game` only. Recommend (b). Confirm before migrating.
+
+**Out of scope:** the crawler that fills these fields (US-025) and where raw
+data is staged (US-026).
+
+#### US-026 — External NoSQL datastore (blocked)
+
+Stated driver: the database "will be very large" once crawling starts, and to
+support deeper filtering. **Before this becomes an implementation story, the
+role of the NoSQL store must be decided** (see the pending product question).
+Candidate roles, each a different amount of work:
+
+- **Raw-crawl staging store** (e.g. MongoDB): hold messy, schema-varying crawl
+  payloads; an ETL step normalizes chosen fields into the existing relational
+  DB, which the app keeps querying. Complements, does not replace. *(Lowest
+  risk; recommended if the driver is crawl volume/shape.)*
+- **Primary DB replacement**: move the whole app off SQLite/Prisma-relational to
+  a document store. Large rewrite; the m:n mechanic×genre×platform AND-filtering
+  the app is built around is harder in a document model.
+- **Search/facet engine** (Meilisearch / Typesense / Elasticsearch): not a
+  general NoSQL DB, but the right tool if the real need is fast filtered search
+  at scale rather than a new system of record.
+
+Note: a puzzle-game catalog — even fully crawled — is likely tens of thousands
+of rows, which SQLite/Postgres handle comfortably with indexes. "Large" alone
+may not justify a second datastore; the justification is more likely raw-crawl
+shape or search performance. This is why the decision is gated.
