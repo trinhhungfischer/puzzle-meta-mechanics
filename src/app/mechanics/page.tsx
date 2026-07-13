@@ -1,12 +1,15 @@
 import prisma from '@/lib/prisma'
-import Link from 'next/link'
+import { PublicLayout } from '@/components/layout/PublicLayout'
+import { MechanicCard } from '@/components/ui/MechanicCard'
+import { Button } from '@/components/ui/Button'
 
 export default async function MechanicsPublicPage({
   searchParams,
 }: {
-  searchParams: { q?: string }
+  searchParams: Promise<{ q?: string }>
 }) {
-  const q = searchParams.q
+  const resolvedParams = await searchParams
+  const q = resolvedParams.q
 
   const groups = await prisma.mechanicGroup.findMany({
     orderBy: { name: 'asc' },
@@ -25,61 +28,51 @@ export default async function MechanicsPublicPage({
   const visibleGroups = groups.filter(g => g.mechanics.length > 0)
 
   return (
-    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-      <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h1 style={{ textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '2.5rem', margin: '0 0 0.5rem 0' }}>
-            Mechanics Encyclopedia
+    <PublicLayout>
+      <div className="relative mb-16 rounded-3xl overflow-hidden glass-panel p-12 text-center flex flex-col items-center justify-center border-white/5">
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-violet/10 via-zinc-950 to-brand-fuchsia/10 z-0" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-fuchsia/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+        
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 leading-tight">
+            Mechanics <br/> <span className="gradient-text">Encyclopedia</span>
           </h1>
-          <p style={{ opacity: 0.8, maxWidth: '600px' }}>
-            The atomic building blocks of puzzle games, organized by their systemic function.
+          <p className="text-lg md:text-xl text-zinc-400 mb-0 leading-relaxed font-medium">
+            The atomic building blocks of puzzle games, organized by systemic function.
           </p>
         </div>
-        <Link href="/" className="btn" style={{ textDecoration: 'none' }}>Back to Games</Link>
-      </header>
+      </div>
 
-      <form style={{ marginBottom: '3rem', display: 'flex', gap: '1rem', maxWidth: '600px' }}>
+      <form className="mb-12 flex flex-col sm:flex-row gap-4 max-w-2xl">
         <input 
           type="text" 
           name="q" 
           defaultValue={q} 
           placeholder="Search mechanics by name..." 
-          style={{ flex: 1 }}
+          className="flex-1"
         />
-        <button type="submit" className="btn">Search</button>
+        <Button type="submit">Search</Button>
       </form>
 
       {visibleGroups.map(group => (
-        <section key={group.id} style={{ marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '2rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem', color: 'var(--color-purple)' }}>
+        <section key={group.id} className="mb-16">
+          <h2 className="text-3xl font-black uppercase tracking-tight border-b-4 border-outline pb-2 mb-6 text-purple-solid">
             {group.name}
           </h2>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {group.mechanics.map(mechanic => (
-              <Link href={`/mechanics/${mechanic.slug}`} key={mechanic.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="thinky-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--color-purple)' }}>{mechanic.name}</h3>
-                  <p style={{ opacity: 0.8, fontSize: '0.9rem', marginBottom: '1rem' }}>
-                    {mechanic.description ? 
-                      (mechanic.description.length > 100 ? mechanic.description.substring(0, 100) + '...' : mechanic.description) 
-                      : 'No definition provided.'}
-                  </p>
-                  <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', fontSize: '0.8rem', opacity: 0.7 }}>
-                    Used in {mechanic._count.games} games
-                  </div>
-                </div>
-              </Link>
+              <MechanicCard key={mechanic.id} mechanic={mechanic} />
             ))}
           </div>
         </section>
       ))}
 
       {visibleGroups.length === 0 && (
-        <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5, backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '4px' }}>
-          No mechanics found matching "{q}".
+        <div className="p-12 text-center opacity-50 bg-black/10 rounded border-2 border-outline/50">
+          <p className="text-xl font-bold">No mechanics found matching "{q}".</p>
         </div>
       )}
-    </main>
+    </PublicLayout>
   )
 }

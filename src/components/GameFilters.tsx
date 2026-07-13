@@ -1,6 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { BentoBox } from '@/components/ui/BentoBox'
+import { Button } from '@/components/ui/Button'
+import { Dropdown } from '@/components/ui/Dropdown'
+import { MultiSelect } from '@/components/ui/MultiSelect'
+import { useState, useEffect } from 'react'
 
 type Props = {
   genres: any[]
@@ -14,97 +19,133 @@ type Props = {
 
 export default function GameFilters({ genres, platforms, mechanics, currentQ, currentGenre, currentPlatform, currentMechanics }: Props) {
   const router = useRouter()
+  
+  const [localQ, setLocalQ] = useState(currentQ || '')
+  const [localGenre, setLocalGenre] = useState(currentGenre || '')
+  const [localPlatform, setLocalPlatform] = useState(currentPlatform || '')
+  const [localMechanics, setLocalMechanics] = useState<string[]>(currentMechanics || [])
+
+  // Sync state if props change from a direct URL hit (e.g. user uses back/forward browser buttons)
+  useEffect(() => { setLocalQ(currentQ || '') }, [currentQ])
+  useEffect(() => { setLocalGenre(currentGenre || '') }, [currentGenre])
+  useEffect(() => { setLocalPlatform(currentPlatform || '') }, [currentPlatform])
+  useEffect(() => { setLocalMechanics(currentMechanics || []) }, [currentMechanics])
 
   const updateFilters = (newFilters: { [key: string]: any }) => {
     const params = new URLSearchParams()
     
-    const q = newFilters.q !== undefined ? newFilters.q : currentQ
+    const q = newFilters.q !== undefined ? newFilters.q : localQ
     if (q) params.set('q', q)
 
-    const g = newFilters.genre !== undefined ? newFilters.genre : currentGenre
+    const g = newFilters.genre !== undefined ? newFilters.genre : localGenre
     if (g) params.set('genre', g)
 
-    const p = newFilters.platform !== undefined ? newFilters.platform : currentPlatform
+    const p = newFilters.platform !== undefined ? newFilters.platform : localPlatform
     if (p) params.set('platform', p)
 
-    const m = newFilters.mechanics !== undefined ? newFilters.mechanics : currentMechanics
-    m.forEach((mech: string) => params.append('mechanic', mech))
-
-    router.push(`/?${params.toString()}`)
-  }
-
-  const toggleMechanic = (slug: string) => {
-    if (currentMechanics.includes(slug)) {
-      updateFilters({ mechanics: currentMechanics.filter(m => m !== slug) })
-    } else {
-      updateFilters({ mechanics: [...currentMechanics, slug] })
+    const m = newFilters.mechanics !== undefined ? newFilters.mechanics : localMechanics
+    if (m && m.length > 0) {
+      params.set('mechanic', m.join(','))
     }
+
+    router.push(`/?${params.toString()}`, { scroll: false })
   }
+
+  // Debounce effect for title search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (localQ !== (currentQ || '')) {
+        updateFilters({ q: localQ })
+      }
+    }, 400)
+    return () => clearTimeout(handler)
+  }, [localQ, currentQ])
+
+  // Handlers for instant UI updates
+  const handleGenreChange = (val: string) => {
+    setLocalGenre(val)
+    updateFilters({ genre: val })
+  }
+
+  const handlePlatformChange = (val: string) => {
+    setLocalPlatform(val)
+    updateFilters({ platform: val })
+  }
+
+  const handleMechanicsChange = (vals: string[]) => {
+    setLocalMechanics(vals)
+    updateFilters({ mechanics: vals })
+  }
+
+  const genreOptions = genres.map(g => ({ label: g.name, value: g.slug }))
+  const platformOptions = platforms.map(p => ({ label: p.name, value: p.slug }))
+  const mechanicOptions = mechanics.map(m => ({ label: m.name, value: m.slug }))
 
   return (
-    <div className="bento-box color-blue" style={{ position: 'sticky', top: '2rem' }}>
-      <div className="bento-header" style={{ marginBottom: '1rem' }}>Filters</div>
-      
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Search</label>
+    <BentoBox color="blue" header="Filters" className="sticky top-8">
+      <div className="mb-6">
+        <label className="block text-sm font-bold mb-2 text-zinc-300">Search Games</label>
         <input 
           type="text" 
           placeholder="Game title..." 
-          defaultValue={currentQ}
-          onChange={(e) => updateFilters({ q: e.target.value })}
-          style={{ width: '100%', marginBottom: 0 }}
+          value={localQ}
+          onChange={(e) => setLocalQ(e.target.value)}
+          className="w-full bg-zinc-900/80 border-white/10"
         />
       </div>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Genre</label>
-        <select 
-          value={currentGenre || ''}
-          onChange={(e) => updateFilters({ genre: e.target.value })}
-          style={{ width: '100%' }}
-        >
-          <option value="">Any Genre</option>
-          {genres.map(g => <option key={g.id} value={g.slug}>{g.name}</option>)}
-        </select>
+      <div className="mb-6">
+        <label className="block text-sm font-bold mb-2 text-zinc-300">Genre</label>
+        <Dropdown 
+          options={genreOptions} 
+          value={localGenre} 
+          onChange={handleGenreChange} 
+          placeholder="Any Genre"
+        />
       </div>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Platform</label>
-        <select 
-          value={currentPlatform || ''}
-          onChange={(e) => updateFilters({ platform: e.target.value })}
-          style={{ width: '100%' }}
-        >
-          <option value="">Any Platform</option>
-          {platforms.map(p => <option key={p.id} value={p.slug}>{p.name}</option>)}
-        </select>
+      <div className="mb-6">
+        <label className="block text-sm font-bold mb-2 text-zinc-300">Platform</label>
+        <Dropdown 
+          options={platformOptions} 
+          value={localPlatform} 
+          onChange={handlePlatformChange} 
+          placeholder="Any Platform"
+        />
       </div>
 
-      <div>
-        <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Mechanics (AND)</label>
-        <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.3rem', paddingRight: '0.5rem' }}>
-          {mechanics.map(m => (
-            <label key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', cursor: 'pointer' }}>
-              <input 
-                type="checkbox" 
-                checked={currentMechanics.includes(m.slug)}
-                onChange={() => toggleMechanic(m.slug)}
-              />
-              {m.name}
-            </label>
-          ))}
-        </div>
+      <div className="mb-6">
+        <label className="block text-sm font-bold mb-2 text-zinc-300 flex justify-between items-center">
+          <span>Mechanics (AND)</span>
+          {localMechanics.length > 0 && (
+            <span className="bg-brand-violet/20 text-brand-violet px-2 py-0.5 rounded-full text-xs">
+              {localMechanics.length}
+            </span>
+          )}
+        </label>
+        <MultiSelect 
+          options={mechanicOptions}
+          values={localMechanics}
+          onChange={handleMechanicsChange}
+          placeholder="Search mechanics..."
+        />
       </div>
       
-      <div style={{ marginTop: '1.5rem' }}>
-        <button 
-          onClick={() => { router.push('/') }} 
-          className="btn" 
-          style={{ width: '100%', backgroundColor: 'var(--border-color)', color: 'var(--bg-color)' }}
+      <div className="mt-8">
+        <Button 
+          variant="ghost"
+          onClick={() => { 
+            setLocalQ('')
+            setLocalGenre('')
+            setLocalPlatform('')
+            setLocalMechanics([])
+            router.push('/', { scroll: false }) 
+          }} 
+          className="w-full bg-white/5 border-white/10 hover:bg-white/10"
         >
-          Clear Filters
-        </button>
+          Clear All Filters
+        </Button>
       </div>
-    </div>
+    </BentoBox>
   )
 }

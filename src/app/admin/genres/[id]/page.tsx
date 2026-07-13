@@ -6,10 +6,11 @@ import Link from 'next/link'
 export default async function EditGenrePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const resolvedParams = await params;
   const genre = await prisma.genre.findUnique({
-    where: { id: params.id }
+    where: { id: resolvedParams.id }
   })
 
   if (!genre) {

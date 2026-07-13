@@ -1,6 +1,9 @@
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import { deleteGame } from '../actions'
+import { Button } from '@/components/ui/Button'
+import { BentoBox } from '@/components/ui/BentoBox'
+import { Pill } from '@/components/ui/Pill'
 
 export default async function GamesAdminPage() {
   const games = await prisma.game.findMany({
@@ -14,65 +17,63 @@ export default async function GamesAdminPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '2rem', margin: 0 }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <h1 className="text-3xl font-black uppercase tracking-widest m-0">
           Manage Games
         </h1>
-        <Link href="/admin/games/new" className="btn" style={{ textDecoration: 'none' }}>
-          + Add New Game
-        </Link>
+        <Button href="/admin/games/new">+ Add New Game</Button>
       </div>
 
-      <div style={{ display: 'grid', gap: '2rem' }}>
+      <div className="grid gap-6">
         {games.map(game => (
-          <div key={game.id} className="thinky-card" style={{ padding: '1rem', display: 'flex', gap: '1rem' }}>
+          <BentoBox key={game.id} className="flex flex-col sm:flex-row gap-6">
             {game.coverUrl ? (
-              <img src={game.coverUrl} alt={`${game.title} cover`} style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '4px' }} />
+              <img src={game.coverUrl} alt={`${game.title} cover`} className="w-full sm:w-[120px] h-[120px] object-cover border-2 border-outline flex-shrink-0 shadow-[4px_4px_0_var(--color-outline)]" />
             ) : (
-              <div style={{ width: '120px', height: '120px', backgroundColor: 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }}>
-                <span style={{ fontSize: '2rem', opacity: 0.5 }}>{game.title[0]}</span>
+              <div className="w-full sm:w-[120px] h-[120px] bg-box border-2 border-outline flex items-center justify-center flex-shrink-0 shadow-[4px_4px_0_var(--color-outline)] bg-gradient-to-br from-green-tint to-blue-tint">
+                <span className="text-4xl opacity-50 font-black uppercase">{game.title[0]}</span>
               </div>
             )}
             
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <h2 style={{ margin: '0 0 0.5rem 0' }}>{game.title}</h2>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Link href={`/admin/games/${game.id}`} style={{ textDecoration: 'none', color: 'var(--color-blue)', fontSize: '1rem', padding: '0.2rem' }}>
+            <div className="flex-1">
+              <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
+                <h2 className="text-2xl font-black uppercase tracking-tight m-0 leading-none">{game.title}</h2>
+                <div className="flex items-center gap-3">
+                  <Link href={`/admin/games/${game.id}`} className="font-bold uppercase tracking-wider text-sm text-blue-solid hover:underline">
                     Edit
                   </Link>
                   <form action={async () => {
                     'use server'
                     await deleteGame(game.id)
                   }}>
-                    <button type="submit" title="Delete Game" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red', fontSize: '1.2rem' }}>
+                    <button type="submit" title="Delete Game" className="bg-transparent border-none cursor-pointer text-red-600 hover:text-red-800 text-xl font-bold leading-none">
                       &times;
                     </button>
                   </form>
                 </div>
               </div>
-              <p style={{ opacity: 0.8, marginBottom: '0.5rem' }}>{game.description}</p>
+              <p className="opacity-80 mb-4 line-clamp-2">{game.description}</p>
               
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+              <div className="flex flex-wrap gap-2 mb-3">
                 {game.genres.map(g => (
-                  <span key={g.id} className="mechanic-pill" style={{ backgroundColor: 'var(--color-pink)' }}>{g.name}</span>
+                  <Pill key={g.id} color="pink">{g.name}</Pill>
                 ))}
                 {game.platforms.map(p => (
-                  <span key={p.id} className="mechanic-pill" style={{ backgroundColor: 'var(--color-blue)' }}>{p.platform.name}</span>
+                  <Pill key={p.id} color="blue">{p.platform.name}</Pill>
                 ))}
               </div>
 
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <div className="flex flex-wrap gap-2">
                 {game.mechanics.map(m => (
-                  <span key={m.id} className="mechanic-pill">
-                    {m.mechanic.name} <span style={{ opacity: 0.7, fontSize: '0.8em' }}>({m.role})</span>
-                  </span>
+                  <Pill key={m.id} color={m.role === 'core' ? 'default' : 'purple'} className="!text-[0.6rem] !px-2">
+                    {m.mechanic.name} <span className="opacity-70 normal-case ml-1">({m.role})</span>
+                  </Pill>
                 ))}
               </div>
             </div>
-          </div>
+          </BentoBox>
         ))}
-        {games.length === 0 && <p>No games found.</p>}
+        {games.length === 0 && <p className="opacity-50 text-lg font-bold">No games found.</p>}
       </div>
     </div>
   )

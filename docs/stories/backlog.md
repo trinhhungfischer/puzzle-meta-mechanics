@@ -27,7 +27,7 @@ Decisions locked at intake (2026-07-13):
 | E02 Admin curation | `/admin` CRUD + JSON bulk import | in progress |
 | E03 Viewer catalog | Public-ready browse/search/detail pages | built (blocked by E05-001) |
 | E04 Insight & public readiness | Derived relations, auth, deploy | deferred |
-| E05 Stabilization | Build fixes, edit flows, cleanup found during review | new |
+| E05 Stabilization | Build fixes, edit flows, cleanup found during review | done |
 
 ## Progress review (2026-07-13)
 
@@ -56,15 +56,53 @@ backslash-escaped backticks (`\`...\``) instead of template literals:
 `src/app/mechanics/[slug]/page.tsx`, `src/app/admin/import/page.tsx`,
 `src/components/GameFilters.tsx`. `tsc` and `next build` fail until fixed.
 
-### E05 Stabilization (new — found during review)
+### E05 Stabilization (done)
 
-| ID | Story | Lane | Notes |
+| ID | Story | Status | Notes |
 | --- | --- | --- | --- |
-| US-014 | Fix escaped backticks in 5 files so `next build` passes | normal | **Highest priority — blocks running the app** |
-| US-015 | Add edit flow for games, mechanics, groups, genres, platforms | normal | Completes US-003/US-004; delete+recreate currently loses relations |
-| US-016 | Mechanic admin editor for `mediaUrls` + `constraints` JSON | tiny | Completes US-004; fields exist in schema + detail page only |
-| US-017 | JSON import dry-run + validation report + surface Uncategorized mechanics | normal | Completes US-005 |
-| US-018 | Fix nav (`/games` 404) and delete dead files: root `actions.ts`, `Brainstorm.tsx`, `MechanicSelector.tsx`, `scripts/seed_from_pdf.ts` | tiny | Nav points to a non-existent index route |
+| US-014 | Fix escaped backticks in 5 files so `next build` passes | done | **Highest priority — blocks running the app** |
+| US-015 | Add edit flow for games, mechanics, groups, genres, platforms | done | Completes US-003/US-004; delete+recreate currently loses relations |
+| US-016 | Mechanic admin editor for `mediaUrls` + `constraints` JSON | done | Completes US-004; fields exist in schema + detail page only |
+| US-017 | JSON import dry-run + validation report + surface Uncategorized mechanics | done | Completes US-005 |
+| US-018 | Fix nav (`/games` 404) and delete dead files: root `actions.ts`, `Brainstorm.tsx`, `MechanicSelector.tsx`, `scripts/seed_from_pdf.ts` | done | Nav points to a non-existent index route |
+| US-019 | Comprehensive UI/UX overhaul across the whole site | done | Presentation-only; do after US-014 so the app runs first |
+
+#### US-019 — Comprehensive UI/UX overhaul
+
+**Problem.** A design system exists in `globals.css` (neo-brutalist bento /
+"thinky" cards, CSS custom properties, dark-mode tokens) but pages ignore it:
+every page hand-writes large inline `style={{…}}` objects, spacing/typography
+are inconsistent, Tailwind v4 is installed but effectively unused, and there is
+no shared layout shell, empty state, or responsive strategy. Reference target
+is the polish level of thinkygames.com/games.
+
+**Scope (presentation only — no schema, data, or route-contract changes):**
+
+- Design tokens: consolidate color/spacing/typography/radius into one source
+  (globals.css tokens or a Tailwind theme) and pick ONE styling approach;
+  stop mixing inline styles with utility classes.
+- Shared shell: header/nav (fix the current links), page container, footer,
+  consistent page-title block; move repeated inline layout into components.
+- Reusable components: GameCard, MechanicCard, Pill/Tag, FilterSidebar,
+  Section header, Button, empty-state, loading/skeleton — replacing the
+  inline-styled duplicates on home, games, mechanics, genres, admin.
+- Responsive + accessibility pass: mobile layout for the filter sidebar and
+  card grids, focus states, alt text, color-contrast in both themes,
+  keyboard-navigable filters.
+- Visual polish: cover-image fallbacks, hover/transition consistency,
+  genre/platform/role pill color legend, typographic hierarchy.
+- Admin vs viewer: give `/admin` a clearly distinct but consistent look so
+  curation screens don't read like public pages.
+
+**Out of scope:** new features, new data fields, auth, related-games logic
+(US-011). Those stay in their own stories.
+
+**Done when:** every current page renders through shared components with no
+ad-hoc inline layout blocks, works at mobile + desktop widths in light and
+dark mode, and `next build` still passes.
+
+**Dependency:** US-014 (build must pass first). Recommended before public
+exposure (US-012) and before US-011.
 
 ## Stories
 
@@ -105,3 +143,12 @@ backslash-escaped backticks (`\`...\``) instead of template literals:
 
 US-001 → US-002 → US-003/US-004 → US-006 → US-008 → US-009 → US-007 →
 US-010 → US-005 → E04.
+
+### E06 Follow-up & Polish (done)
+
+| ID | Story | Status | Notes |
+| --- | --- | --- | --- |
+| US-020 | Retain original PDF tags (e.g., INT-001) in Mechanic names | done | DB update script run to modify 154 mechanics |
+| US-021 | Seed starter games from PDF examples | done | 12 representative games created |
+| US-022 | Fix Game Filters UX (scroll to top & overlapping mechanics) | done | Updated query params behavior to support comma-separated mechanic array and disabled scroll |
+| US-023 | Fix Next.js 15+ asynchronous `params` in all dynamic routes | done | Resolved crash when opening detail pages |

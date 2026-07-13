@@ -2,13 +2,14 @@ import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import GameForm from '../new/GameForm'
 
-export default async function EditGamePage({
+export default async function AdminGameEditPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const resolvedParams = await params;
   const game = await prisma.game.findUnique({
-    where: { id: params.id },
+    where: { id: resolvedParams.id },
     include: {
       genres: true,
       platforms: true,

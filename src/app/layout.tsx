@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import Link from 'next/link';
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Puzzle Meta Mechanics",
@@ -13,13 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
-        <nav style={{ padding: '1rem 2rem', borderBottom: 'var(--border-width) solid var(--border-color)', marginBottom: '2rem', display: 'flex', gap: '1rem', backgroundColor: 'var(--bg-box)' }}>
-          <Link href="/" className="btn" style={{ border: 'none', padding: '0.5rem' }}>Home</Link>
-          <Link href="/genres" className="btn" style={{ border: 'none', padding: '0.5rem' }}>Genres</Link>
-          <Link href="/mechanics" className="btn" style={{ border: 'none', padding: '0.5rem' }}>Mechanics</Link>
-        </nav>
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans min-h-screen flex flex-col">
         {children}
       </body>
     </html>

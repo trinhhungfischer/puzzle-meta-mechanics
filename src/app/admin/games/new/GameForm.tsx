@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createGameWithRelations, updateGameWithRelations } from '../../actions'
+import { BentoBox } from '@/components/ui/BentoBox'
+import { Button } from '@/components/ui/Button'
+import { Dropdown } from '@/components/ui/Dropdown'
 
 type Props = {
   genres: any[]
@@ -47,25 +50,31 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
     router.push('/admin/games')
   }
 
+  const platformOptions = platforms.map(p => ({ label: p.name, value: p.id }))
+  const mechanicOptions = mechanics.map(m => ({ label: m.name, value: m.id }))
+  const roleOptions = [
+    { label: 'Core', value: 'core' },
+    { label: 'Secondary', value: 'secondary' },
+    { label: 'Twist', value: 'twist' }
+  ]
+
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       {/* Basic Info */}
-      <div className="bento-box color-yellow">
-        <div className="bento-header">Basic Info</div>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-          <input type="text" name="title" defaultValue={initialData?.title} placeholder="Game Title" required style={{ flex: '2 1 300px' }} />
-          <input type="number" name="releaseYear" defaultValue={initialData?.releaseYear || ''} placeholder="Release Year" style={{ flex: '1 1 100px' }} />
+      <BentoBox color="yellow" header="Basic Info">
+        <div className="flex flex-wrap gap-4 mb-4">
+          <input type="text" name="title" defaultValue={initialData?.title} placeholder="Game Title" required className="flex-[2] min-w-[300px]" />
+          <input type="number" name="releaseYear" defaultValue={initialData?.releaseYear || ''} placeholder="Release Year" className="flex-1 min-w-[100px]" />
         </div>
-        <input type="text" name="coverUrl" defaultValue={initialData?.coverUrl || ''} placeholder="Cover Image URL" style={{ width: '100%', marginBottom: '1rem' }} />
-        <textarea name="description" defaultValue={initialData?.description || ''} placeholder="Description" rows={3} style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }} />
-      </div>
+        <input type="text" name="coverUrl" defaultValue={initialData?.coverUrl || ''} placeholder="Cover Image URL" className="w-full mb-4" />
+        <textarea name="description" defaultValue={initialData?.description || ''} placeholder="Description" rows={3} className="w-full" />
+      </BentoBox>
 
       {/* Genres */}
-      <div className="bento-box color-pink">
-        <div className="bento-header">Genres</div>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+      <BentoBox color="pink" header="Genres">
+        <div className="flex flex-wrap gap-4">
           {genres.map(g => (
-            <label key={g.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+            <label key={g.id} className="flex items-center gap-2 cursor-pointer group hover:bg-white/5 p-2 rounded-lg transition-colors">
               <input 
                 type="checkbox" 
                 checked={selectedGenres.includes(g.id)}
@@ -73,31 +82,33 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
                   if (e.target.checked) setSelectedGenres([...selectedGenres, g.id])
                   else setSelectedGenres(selectedGenres.filter(id => id !== g.id))
                 }}
+                className="w-4 h-4 rounded cursor-pointer accent-brand-fuchsia"
               />
-              {g.name}
+              <span className={selectedGenres.includes(g.id) ? "text-white font-bold" : "text-zinc-400 group-hover:text-zinc-200"}>
+                {g.name}
+              </span>
             </label>
           ))}
         </div>
-      </div>
+      </BentoBox>
 
       {/* Platforms */}
-      <div className="bento-box color-blue">
-        <div className="bento-header">Platforms</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <BentoBox color="blue" header="Platforms">
+        <div className="flex flex-col gap-4">
           {selectedPlatforms.map((p, idx) => (
-            <div key={idx} style={{ display: 'flex', gap: '1rem' }}>
-              <select 
-                value={p.platformId}
-                onChange={e => {
-                  const newP = [...selectedPlatforms]
-                  newP[idx].platformId = e.target.value
-                  setSelectedPlatforms(newP)
-                }}
-                style={{ flex: 1 }}
-              >
-                <option value="" disabled>Select Platform</option>
-                {platforms.map(plat => <option key={plat.id} value={plat.id}>{plat.name}</option>)}
-              </select>
+            <div key={idx} className="flex flex-wrap gap-4 items-start">
+              <div className="flex-1 min-w-[200px]">
+                <Dropdown 
+                  options={platformOptions}
+                  value={p.platformId}
+                  onChange={val => {
+                    const newP = [...selectedPlatforms]
+                    newP[idx].platformId = val
+                    setSelectedPlatforms(newP)
+                  }}
+                  placeholder="Select Platform"
+                />
+              </div>
               <input 
                 type="text" 
                 placeholder="Store URL (optional)" 
@@ -107,47 +118,53 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
                   newP[idx].storeUrl = e.target.value
                   setSelectedPlatforms(newP)
                 }}
-                style={{ flex: 2, marginBottom: 0 }}
+                className="flex-[2] min-w-[200px]"
               />
-              <button type="button" onClick={() => setSelectedPlatforms(selectedPlatforms.filter((_, i) => i !== idx))} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>&times;</button>
+              <button 
+                type="button" 
+                onClick={() => setSelectedPlatforms(selectedPlatforms.filter((_, i) => i !== idx))} 
+                className="text-red-500 hover:text-red-400 font-bold text-xl px-2 py-1"
+              >
+                &times;
+              </button>
             </div>
           ))}
-          <button type="button" onClick={() => setSelectedPlatforms([...selectedPlatforms, { platformId: '', storeUrl: '' }])} className="btn" style={{ alignSelf: 'flex-start' }}>+ Add Platform</button>
+          <Button type="button" onClick={() => setSelectedPlatforms([...selectedPlatforms, { platformId: '', storeUrl: '' }])} variant="secondary" className="self-start">
+            + Add Platform
+          </Button>
         </div>
-      </div>
+      </BentoBox>
 
       {/* Mechanics */}
-      <div className="bento-box color-purple">
-        <div className="bento-header">Mechanics</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <BentoBox color="purple" header="Mechanics">
+        <div className="flex flex-col gap-4">
           {selectedMechanics.map((m, idx) => (
-            <div key={idx} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <select 
-                value={m.mechanicId}
-                onChange={e => {
-                  const newM = [...selectedMechanics]
-                  newM[idx].mechanicId = e.target.value
-                  setSelectedMechanics(newM)
-                }}
-                style={{ flex: '2 1 200px' }}
-              >
-                <option value="" disabled>Select Mechanic</option>
-                {mechanics.map(mech => <option key={mech.id} value={mech.id}>{mech.name}</option>)}
-              </select>
+            <div key={idx} className="flex flex-wrap gap-4 items-start bg-zinc-900/30 p-4 rounded-xl border border-white/5">
+              <div className="flex-[2] min-w-[250px]">
+                <Dropdown 
+                  options={mechanicOptions}
+                  value={m.mechanicId}
+                  onChange={val => {
+                    const newM = [...selectedMechanics]
+                    newM[idx].mechanicId = val
+                    setSelectedMechanics(newM)
+                  }}
+                  placeholder="Select Mechanic"
+                />
+              </div>
               
-              <select 
-                value={m.role}
-                onChange={e => {
-                  const newM = [...selectedMechanics]
-                  newM[idx].role = e.target.value
-                  setSelectedMechanics(newM)
-                }}
-                style={{ flex: '1 1 100px' }}
-              >
-                <option value="core">Core</option>
-                <option value="secondary">Secondary</option>
-                <option value="twist">Twist</option>
-              </select>
+              <div className="flex-1 min-w-[120px]">
+                <Dropdown 
+                  options={roleOptions}
+                  value={m.role}
+                  onChange={val => {
+                    const newM = [...selectedMechanics]
+                    newM[idx].role = val
+                    setSelectedMechanics(newM)
+                  }}
+                  placeholder="Role"
+                />
+              </div>
 
               <input 
                 type="text" 
@@ -158,18 +175,26 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
                   newM[idx].note = e.target.value
                   setSelectedMechanics(newM)
                 }}
-                style={{ flex: '3 1 200px', marginBottom: 0 }}
+                className="flex-[3] min-w-[200px]"
               />
-              <button type="button" onClick={() => setSelectedMechanics(selectedMechanics.filter((_, i) => i !== idx))} style={{ background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>&times;</button>
+              <button 
+                type="button" 
+                onClick={() => setSelectedMechanics(selectedMechanics.filter((_, i) => i !== idx))} 
+                className="text-red-500 hover:text-red-400 font-bold text-xl px-2 py-1"
+              >
+                &times;
+              </button>
             </div>
           ))}
-          <button type="button" onClick={() => setSelectedMechanics([...selectedMechanics, { mechanicId: '', role: 'core', note: '' }])} className="btn" style={{ alignSelf: 'flex-start' }}>+ Add Mechanic</button>
+          <Button type="button" onClick={() => setSelectedMechanics([...selectedMechanics, { mechanicId: '', role: 'core', note: '' }])} variant="secondary" className="self-start">
+            + Add Mechanic
+          </Button>
         </div>
-      </div>
+      </BentoBox>
 
-      <button type="submit" className="btn" style={{ alignSelf: 'flex-start', fontSize: '1.2rem', padding: '1rem 2rem' }}>
+      <Button type="submit" variant="primary" className="self-start text-lg px-8 py-3">
         {initialData ? 'Save Changes' : 'Create Game'}
-      </button>
+      </Button>
     </form>
   )
 }

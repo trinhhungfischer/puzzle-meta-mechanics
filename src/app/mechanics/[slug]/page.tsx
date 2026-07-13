@@ -1,14 +1,18 @@
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { PublicLayout } from '@/components/layout/PublicLayout'
+import { BentoBox } from '@/components/ui/BentoBox'
+import { Pill } from '@/components/ui/Pill'
 
 export default async function MechanicDetailPage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
+  const resolvedParams = await params;
   const mechanic = await prisma.mechanic.findUnique({
-    where: { slug: params.slug },
+    where: { slug: resolvedParams.slug },
     include: {
       group: true,
       games: {
@@ -28,72 +32,74 @@ export default async function MechanicDetailPage({
   const constraints = mechanic.constraints ? JSON.parse(mechanic.constraints) : []
 
   return (
-    <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem' }}>
-      <Link href="/mechanics" style={{ opacity: 0.8, textDecoration: 'none', display: 'inline-block', marginBottom: '2rem' }}>
+    <PublicLayout>
+      <Link href="/mechanics" className="inline-block opacity-80 mb-8 hover:underline">
         &larr; Back to Mechanics
       </Link>
 
-      <header style={{ marginBottom: '3rem' }}>
-        <div style={{ textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '1rem', color: 'var(--color-purple)', marginBottom: '0.5rem' }}>
+      <header className="mb-12">
+        <div className="uppercase tracking-widest font-bold text-purple-solid mb-2">
           {mechanic.group.name}
         </div>
-        <h1 style={{ fontSize: '3rem', margin: '0 0 1rem 0' }}>{mechanic.name}</h1>
+        <h1 className="text-5xl font-black uppercase tracking-tighter mb-4">
+          {mechanic.name}
+        </h1>
         {mechanic.description && (
-          <p style={{ fontSize: '1.2rem', lineHeight: 1.6, opacity: 0.9 }}>
+          <p className="text-xl leading-relaxed opacity-90 max-w-prose">
             {mechanic.description}
           </p>
         )}
       </header>
 
       {/* Constraints & Media */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         {constraints.length > 0 && (
-          <div className="bento-box color-pink">
-            <div className="bento-header">Operating Constraints</div>
-            <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-              {constraints.map((c: string, i: number) => <li key={i} style={{ marginBottom: '0.5rem' }}>{c}</li>)}
+          <BentoBox color="pink" header="Operating Constraints">
+            <ul className="list-disc list-inside space-y-2 opacity-90">
+              {constraints.map((c: string, i: number) => <li key={i}>{c}</li>)}
             </ul>
-          </div>
+          </BentoBox>
         )}
 
         {mediaUrls.length > 0 && (
-          <div className="bento-box color-blue">
-            <div className="bento-header">Media Embeds</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <BentoBox color="blue" header="Media Embeds">
+            <div className="flex flex-col gap-4">
               {mediaUrls.map((url: string, i: number) => (
-                <a key={i} href={url} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>
+                <a key={i} href={url} target="_blank" rel="noreferrer" className="text-blue-solid hover:underline break-all">
                   {url}
                 </a>
               ))}
             </div>
-          </div>
+          </BentoBox>
         )}
       </div>
 
       {/* Games Using This Mechanic */}
       <section>
-        <h2 style={{ fontSize: '2rem', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
+        <h2 className="text-3xl font-black uppercase tracking-tight border-b-4 border-outline pb-2 mb-8">
           Games using {mechanic.name}
         </h2>
         
         {mechanic.games.length === 0 ? (
-          <p style={{ opacity: 0.7 }}>No games are currently documented to use this mechanic.</p>
+          <p className="opacity-70 text-lg">No games are currently documented to use this mechanic.</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {mechanic.games.map(gm => (
-              <div key={gm.id} className="thinky-card" style={{ padding: '1rem' }}>
-                <Link href={`/games/${gm.game.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-yellow)' }}>{gm.game.title}</h3>
+              <BentoBox key={gm.id} className="!p-4 h-full flex flex-col">
+                <Link href={`/games/${gm.game.slug}`} className="no-underline hover:underline">
+                  <h3 className="text-xl font-black uppercase tracking-tight text-yellow-solid mb-2">
+                    {gm.game.title}
+                  </h3>
                 </Link>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span className="mechanic-pill" style={{ backgroundColor: 'var(--color-purple)' }}>{gm.role}</span>
+                <div className="flex items-center gap-2 mb-2">
+                  <Pill color="purple">{gm.role}</Pill>
                 </div>
-                {gm.note && <p style={{ fontSize: '0.9rem', opacity: 0.8, margin: 0 }}>{gm.note}</p>}
-              </div>
+                {gm.note && <p className="text-sm opacity-80 m-0">{gm.note}</p>}
+              </BentoBox>
             ))}
           </div>
         )}
       </section>
-    </main>
+    </PublicLayout>
   )
 }

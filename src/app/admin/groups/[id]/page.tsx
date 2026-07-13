@@ -6,10 +6,11 @@ import Link from 'next/link'
 export default async function EditGroupPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const resolvedParams = await params;
   const group = await prisma.mechanicGroup.findUnique({
-    where: { id: params.id }
+    where: { id: resolvedParams.id }
   })
 
   if (!group) {

@@ -2,14 +2,18 @@ import prisma from '@/lib/prisma'
 import { updateMechanic } from '../../actions'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { BentoBox } from '@/components/ui/BentoBox'
+import { Button } from '@/components/ui/Button'
+import { Dropdown } from '@/components/ui/Dropdown'
 
 export default async function EditMechanicPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const resolvedParams = await params;
   const mechanic = await prisma.mechanic.findUnique({
-    where: { id: params.id }
+    where: { id: resolvedParams.id }
   })
 
   if (!mechanic) {
@@ -25,44 +29,49 @@ export default async function EditMechanicPage({
 
   return (
     <div>
-      <Link href="/admin/mechanics" style={{ opacity: 0.8, textDecoration: 'none', display: 'inline-block', marginBottom: '2rem' }}>
-        &larr; Back to Mechanics
+      <Link href="/admin/mechanics" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition-colors">
+        <span>&larr;</span> Back to Mechanics
       </Link>
 
-      <h1 style={{ textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '2rem', marginBottom: '2rem' }}>
+      <h1 className="text-3xl font-black uppercase tracking-widest mb-8">
         Edit Mechanic
       </h1>
 
-      <div className="bento-box color-purple" style={{ marginBottom: '2rem' }}>
+      <BentoBox color="purple" header="Mechanic Details" className="mb-12">
         <form action={async (formData) => {
           'use server'
           await updateMechanic(mechanic.id, formData)
-        }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        }} className="flex flex-col gap-4">
           
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <input type="text" name="name" defaultValue={mechanic.name} placeholder="Mechanic Name (e.g. Push)" required style={{ flex: '1 1 200px' }} />
-            <select name="groupId" required style={{ flex: '1 1 200px' }} defaultValue={mechanic.groupId}>
-              <option value="" disabled>Select Group</option>
-              {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
-            </select>
-          </div>
-          
-          <input type="text" name="description" defaultValue={mechanic.description || ''} placeholder="Description (optional)" />
-          
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Constraints (One per line)</label>
-              <textarea name="constraints" defaultValue={constraintsStr} rows={5} placeholder="- Can only push one object at a time" style={{ width: '100%', marginTop: '0.5rem', padding: '0.5rem', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Media URLs (One per line)</label>
-              <textarea name="mediaUrls" defaultValue={mediaUrlsStr} rows={5} placeholder="https://youtube.com/..." style={{ width: '100%', marginTop: '0.5rem', padding: '0.5rem', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }} />
+          <div className="flex flex-wrap gap-4">
+            <input type="text" name="name" defaultValue={mechanic.name} placeholder="Mechanic Name (e.g. Push)" required className="flex-1 min-w-[200px]" />
+            <div className="flex-1 min-w-[200px]">
+              <Dropdown 
+                name="groupId" 
+                defaultValue={mechanic.groupId}
+                required 
+                placeholder="Select Group" 
+                options={groups.map(g => ({ label: g.name, value: g.id }))} 
+              />
             </div>
           </div>
           
-          <button type="submit" className="btn" style={{ alignSelf: 'flex-start' }}>Save Changes</button>
+          <input type="text" name="description" defaultValue={mechanic.description || ''} placeholder="Description (optional)" className="w-full" />
+          
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1">
+              <label className="text-sm font-bold block mb-2">Constraints (One per line)</label>
+              <textarea name="constraints" defaultValue={constraintsStr} rows={5} placeholder="- Can only push one object at a time" className="w-full" />
+            </div>
+            <div className="flex-1">
+              <label className="text-sm font-bold block mb-2">Media URLs (One per line)</label>
+              <textarea name="mediaUrls" defaultValue={mediaUrlsStr} rows={5} placeholder="https://youtube.com/..." className="w-full" />
+            </div>
+          </div>
+          
+          <Button type="submit" variant="primary" className="self-start mt-4">Save Changes</Button>
         </form>
-      </div>
+      </BentoBox>
     </div>
   )
 }

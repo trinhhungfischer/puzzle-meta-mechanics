@@ -6,10 +6,11 @@ import Link from 'next/link'
 export default async function EditPlatformPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const resolvedParams = await params;
   const platform = await prisma.platform.findUnique({
-    where: { id: params.id }
+    where: { id: resolvedParams.id }
   })
 
   if (!platform) {
