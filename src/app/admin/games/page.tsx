@@ -37,14 +37,19 @@ export default async function GamesAdminPage() {
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <h2 style={{ margin: '0 0 0.5rem 0' }}>{game.title}</h2>
-                <form action={async () => {
-                  'use server'
-                  await deleteGame(game.id)
-                }}>
-                  <button type="submit" title="Delete Game" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red', fontSize: '1.2rem' }}>
-                    &times;
-                  </button>
-                </form>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <Link href={`/admin/games/${game.id}`} style={{ textDecoration: 'none', color: 'var(--color-blue)', fontSize: '1rem', padding: '0.2rem' }}>
+                    Edit
+                  </Link>
+                  <form action={async () => {
+                    'use server'
+                    await deleteGame(game.id)
+                  }}>
+                    <button type="submit" title="Delete Game" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red', fontSize: '1.2rem' }}>
+                      &times;
+                    </button>
+                  </form>
+                </div>
               </div>
               <p style={{ opacity: 0.8, marginBottom: '0.5rem' }}>{game.description}</p>
               

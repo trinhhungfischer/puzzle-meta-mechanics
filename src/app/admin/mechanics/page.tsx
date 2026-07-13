@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma'
 import { createMechanic, deleteMechanic } from '../actions'
+import Link from 'next/link'
 
 export default async function MechanicsAdminPage() {
   const mechanics = await prisma.mechanic.findMany({
@@ -33,6 +34,18 @@ export default async function MechanicsAdminPage() {
             </select>
           </div>
           <input type="text" name="description" placeholder="Description (optional)" />
+          
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Constraints (One per line)</label>
+              <textarea name="constraints" rows={3} placeholder="- Can only push one object at a time" style={{ width: '100%', marginTop: '0.5rem', padding: '0.5rem', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Media URLs (One per line)</label>
+              <textarea name="mediaUrls" rows={3} placeholder="https://youtube.com/..." style={{ width: '100%', marginTop: '0.5rem', padding: '0.5rem', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }} />
+            </div>
+          </div>
+          
           <button type="submit" className="btn" style={{ alignSelf: 'flex-start' }}>Add Mechanic</button>
         </form>
       </div>
@@ -45,14 +58,19 @@ export default async function MechanicsAdminPage() {
                 <h3 className="thinky-title" style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{mechanic.name}</h3>
                 <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>Group: {mechanic.group.name}</span>
               </div>
-              <form action={async () => {
-                'use server'
-                await deleteMechanic(mechanic.id)
-              }}>
-                <button type="submit" title="Delete Mechanic" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red', fontSize: '1.2rem' }}>
-                  &times;
-                </button>
-              </form>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Link href={`/admin/mechanics/${mechanic.id}`} style={{ textDecoration: 'none', color: 'var(--color-blue)', fontSize: '0.9rem', padding: '0.2rem' }}>
+                  Edit
+                </Link>
+                <form action={async () => {
+                  'use server'
+                  await deleteMechanic(mechanic.id)
+                }}>
+                  <button type="submit" title="Delete Mechanic" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red', fontSize: '1.2rem' }}>
+                    &times;
+                  </button>
+                </form>
+              </div>
             </div>
             {mechanic.description && <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>{mechanic.description}</p>}
             <div style={{ fontSize: '0.8rem', marginTop: 'auto', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)' }}>

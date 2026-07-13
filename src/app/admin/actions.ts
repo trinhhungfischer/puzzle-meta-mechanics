@@ -16,6 +16,18 @@ export async function createGenre(formData: FormData) {
   revalidatePath('/admin/genres')
 }
 
+export async function updateGenre(id: string, formData: FormData) {
+  const name = formData.get('name') as string
+  const description = formData.get('description') as string | null
+  if (!name) return
+
+  await prisma.genre.update({
+    where: { id },
+    data: { name, slug: slugify(name), description },
+  })
+  revalidatePath('/admin/genres')
+}
+
 export async function deleteGenre(id: string) {
   await prisma.genre.delete({ where: { id } })
   revalidatePath('/admin/genres')
@@ -27,6 +39,17 @@ export async function createPlatform(formData: FormData) {
   if (!name) return
 
   await prisma.platform.create({
+    data: { name, slug: slugify(name) },
+  })
+  revalidatePath('/admin/platforms')
+}
+
+export async function updatePlatform(id: string, formData: FormData) {
+  const name = formData.get('name') as string
+  if (!name) return
+
+  await prisma.platform.update({
+    where: { id },
     data: { name, slug: slugify(name) },
   })
   revalidatePath('/admin/platforms')
@@ -49,6 +72,18 @@ export async function createGroup(formData: FormData) {
   revalidatePath('/admin/groups')
 }
 
+export async function updateGroup(id: string, formData: FormData) {
+  const name = formData.get('name') as string
+  const description = formData.get('description') as string | null
+  if (!name) return
+
+  await prisma.mechanicGroup.update({
+    where: { id },
+    data: { name, slug: slugify(name), description },
+  })
+  revalidatePath('/admin/groups')
+}
+
 export async function deleteGroup(id: string) {
   await prisma.mechanicGroup.delete({ where: { id } })
   revalidatePath('/admin/groups')
@@ -59,10 +94,38 @@ export async function createMechanic(formData: FormData) {
   const name = formData.get('name') as string
   const description = formData.get('description') as string | null
   const groupId = formData.get('groupId') as string
+  
+  // Parse constraints and mediaUrls from textareas (newline separated)
+  const constraintsStr = formData.get('constraints') as string | null
+  const mediaUrlsStr = formData.get('mediaUrls') as string | null
+  
+  const constraints = constraintsStr ? JSON.stringify(constraintsStr.split('\n').map(s => s.trim()).filter(Boolean)) : '[]'
+  const mediaUrls = mediaUrlsStr ? JSON.stringify(mediaUrlsStr.split('\n').map(s => s.trim()).filter(Boolean)) : '[]'
+
   if (!name || !groupId) return
 
   await prisma.mechanic.create({
-    data: { name, slug: slugify(name), description, groupId },
+    data: { name, slug: slugify(name), description, groupId, constraints, mediaUrls },
+  })
+  revalidatePath('/admin/mechanics')
+}
+
+export async function updateMechanic(id: string, formData: FormData) {
+  const name = formData.get('name') as string
+  const description = formData.get('description') as string | null
+  const groupId = formData.get('groupId') as string
+  
+  const constraintsStr = formData.get('constraints') as string | null
+  const mediaUrlsStr = formData.get('mediaUrls') as string | null
+  
+  const constraints = constraintsStr ? JSON.stringify(constraintsStr.split('\n').map(s => s.trim()).filter(Boolean)) : '[]'
+  const mediaUrls = mediaUrlsStr ? JSON.stringify(mediaUrlsStr.split('\n').map(s => s.trim()).filter(Boolean)) : '[]'
+
+  if (!name || !groupId) return
+
+  await prisma.mechanic.update({
+    where: { id },
+    data: { name, slug: slugify(name), description, groupId, constraints, mediaUrls },
   })
   revalidatePath('/admin/mechanics')
 }
@@ -119,3 +182,50 @@ export async function createGameWithRelations(data: {
   revalidatePath('/admin/games')
 }
 
+export async function updateGameWithRelations(id: string, data: {
+  title: string;
+  releaseYear: number | null;
+  description: string | null;
+  coverUrl: string | null;
+  genres: string[];
+  platforms: { platformId: string; storeUrl: string | null }[];
+  mechanics: { mechanicId: string; role: string; note: string | null }[];
+}) {
+  const { title, releaseYear, description, coverUrl, genres, platforms, mechanics } = data
+  if (!title) return
+
+  // To update relations, we clear existing explicit links and recreate them
+  await prisma.gamePlatform.deleteMany({ where: { gameId: id } })
+  await prisma.gameMechanic.deleteMany({ where: { gameId: id } })
+
+  await prisma.game.update({
+    where: { id },
+    data: {
+      title,
+      slug: slugify(title),
+      releaseYear,
+      description,
+      coverUrl,
+      genres: {
+        set: [], // clear existing
+        connect: genres.map(gid => ({ id: gid }))
+      },
+      platforms: {
+        create: platforms.map(p => ({
+          platformId: p.platformId,
+          storeUrl: p.storeUrl
+        }))
+      },
+      mechanics: {
+        create: mechanics.map(m => ({
+          mechanicId: m.mechanicId,
+          role: m.role,
+          note: m.note
+        }))
+      }
+    }
+  })
+  
+  revalidatePath('/admin/games')
+  revalidatePath(`/games/${slugify(title)}`)
+}

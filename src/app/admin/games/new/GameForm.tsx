@@ -2,25 +2,33 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createGameWithRelations } from '../../actions'
+import { createGameWithRelations, updateGameWithRelations } from '../../actions'
 
 type Props = {
   genres: any[]
   platforms: any[]
   mechanics: any[]
+  initialData?: any
 }
 
-export default function GameForm({ genres, platforms, mechanics }: Props) {
+export default function GameForm({ genres, platforms, mechanics, initialData }: Props) {
   const router = useRouter()
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([])
-  const [selectedPlatforms, setSelectedPlatforms] = useState<{ platformId: string; storeUrl: string }[]>([])
-  const [selectedMechanics, setSelectedMechanics] = useState<{ mechanicId: string; role: string; note: string }[]>([])
+  
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(
+    initialData ? initialData.genres.map((g: any) => g.id) : []
+  )
+  const [selectedPlatforms, setSelectedPlatforms] = useState<{ platformId: string; storeUrl: string }[]>(
+    initialData ? initialData.platforms.map((p: any) => ({ platformId: p.platformId, storeUrl: p.storeUrl || '' })) : []
+  )
+  const [selectedMechanics, setSelectedMechanics] = useState<{ mechanicId: string; role: string; note: string }[]>(
+    initialData ? initialData.mechanics.map((m: any) => ({ mechanicId: m.mechanicId, role: m.role, note: m.note || '' })) : []
+  )
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     
-    await createGameWithRelations({
+    const data = {
       title: formData.get('title') as string,
       releaseYear: formData.get('releaseYear') ? parseInt(formData.get('releaseYear') as string) : null,
       description: formData.get('description') as string,
@@ -28,7 +36,13 @@ export default function GameForm({ genres, platforms, mechanics }: Props) {
       genres: selectedGenres,
       platforms: selectedPlatforms,
       mechanics: selectedMechanics
-    })
+    }
+
+    if (initialData) {
+      await updateGameWithRelations(initialData.id, data)
+    } else {
+      await createGameWithRelations(data)
+    }
     
     router.push('/admin/games')
   }
@@ -39,11 +53,11 @@ export default function GameForm({ genres, platforms, mechanics }: Props) {
       <div className="bento-box color-yellow">
         <div className="bento-header">Basic Info</div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-          <input type="text" name="title" placeholder="Game Title" required style={{ flex: '2 1 300px' }} />
-          <input type="number" name="releaseYear" placeholder="Release Year" style={{ flex: '1 1 100px' }} />
+          <input type="text" name="title" defaultValue={initialData?.title} placeholder="Game Title" required style={{ flex: '2 1 300px' }} />
+          <input type="number" name="releaseYear" defaultValue={initialData?.releaseYear || ''} placeholder="Release Year" style={{ flex: '1 1 100px' }} />
         </div>
-        <input type="text" name="coverUrl" placeholder="Cover Image URL" style={{ width: '100%', marginBottom: '1rem' }} />
-        <textarea name="description" placeholder="Description" rows={3} style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }} />
+        <input type="text" name="coverUrl" defaultValue={initialData?.coverUrl || ''} placeholder="Cover Image URL" style={{ width: '100%', marginBottom: '1rem' }} />
+        <textarea name="description" defaultValue={initialData?.description || ''} placeholder="Description" rows={3} style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-color)' }} />
       </div>
 
       {/* Genres */}
@@ -153,7 +167,9 @@ export default function GameForm({ genres, platforms, mechanics }: Props) {
         </div>
       </div>
 
-      <button type="submit" className="btn" style={{ alignSelf: 'flex-start', fontSize: '1.2rem', padding: '1rem 2rem' }}>Save Game</button>
+      <button type="submit" className="btn" style={{ alignSelf: 'flex-start', fontSize: '1.2rem', padding: '1rem 2rem' }}>
+        {initialData ? 'Save Changes' : 'Create Game'}
+      </button>
     </form>
   )
 }
