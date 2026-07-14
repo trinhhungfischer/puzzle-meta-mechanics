@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import GameFilters from '@/components/GameFilters'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { GameCard } from '@/components/ui/GameCard'
+import { getGenres, getPlatforms, getMechanicsList } from '@/lib/taxonomy'
 
 export default async function Home({
   searchParams,
@@ -61,19 +62,21 @@ export default async function Home({
     sort === 'year' ? { releaseYear: 'desc' } :
     { title: 'asc' }
 
-  const games = await prisma.game.findMany({
-    where,
-    orderBy,
-    include: {
-      genres: true,
-      platforms: { include: { platform: true } },
-      mechanics: { include: { mechanic: true } }
-    }
-  })
-
-  const allGenres = await prisma.genre.findMany({ orderBy: { name: 'asc' } })
-  const allPlatforms = await prisma.platform.findMany({ orderBy: { name: 'asc' } })
-  const allMechanics = await prisma.mechanic.findMany({ orderBy: { name: 'asc' } })
+  const [games, allGenres, allPlatforms, allMechanics] = await Promise.all([
+    prisma.game.findMany({
+      where,
+      orderBy,
+      relationLoadStrategy: 'join', // single JOIN instead of one round-trip per relation
+      include: {
+        genres: true,
+        platforms: { include: { platform: true } },
+        mechanics: { include: { mechanic: true } }
+      }
+    }),
+    getGenres(),
+    getPlatforms(),
+    getMechanicsList(),
+  ])
 
   return (
     <PublicLayout>

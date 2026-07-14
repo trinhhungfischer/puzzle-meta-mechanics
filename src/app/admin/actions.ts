@@ -1,7 +1,7 @@
 'use server'
 
 import prisma from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { slugify } from '@/utils/slugify'
 
 // --- Genres ---
@@ -14,6 +14,7 @@ export async function createGenre(formData: FormData) {
     data: { name, slug: slugify(name), description },
   })
   revalidatePath('/admin/genres')
+  revalidateTag('taxonomy', 'max')
 }
 
 export async function updateGenre(id: string, formData: FormData) {
@@ -26,11 +27,13 @@ export async function updateGenre(id: string, formData: FormData) {
     data: { name, slug: slugify(name), description },
   })
   revalidatePath('/admin/genres')
+  revalidateTag('taxonomy', 'max')
 }
 
 export async function deleteGenre(id: string) {
   await prisma.genre.delete({ where: { id } })
   revalidatePath('/admin/genres')
+  revalidateTag('taxonomy', 'max')
 }
 
 // --- Platforms ---
@@ -42,6 +45,7 @@ export async function createPlatform(formData: FormData) {
     data: { name, slug: slugify(name) },
   })
   revalidatePath('/admin/platforms')
+  revalidateTag('taxonomy', 'max')
 }
 
 export async function updatePlatform(id: string, formData: FormData) {
@@ -53,11 +57,13 @@ export async function updatePlatform(id: string, formData: FormData) {
     data: { name, slug: slugify(name) },
   })
   revalidatePath('/admin/platforms')
+  revalidateTag('taxonomy', 'max')
 }
 
 export async function deletePlatform(id: string) {
   await prisma.platform.delete({ where: { id } })
   revalidatePath('/admin/platforms')
+  revalidateTag('taxonomy', 'max')
 }
 
 // --- Mechanic Groups ---
@@ -70,6 +76,7 @@ export async function createGroup(formData: FormData) {
     data: { name, slug: slugify(name), description },
   })
   revalidatePath('/admin/groups')
+  revalidateTag('taxonomy', 'max')
 }
 
 export async function updateGroup(id: string, formData: FormData) {
@@ -82,11 +89,13 @@ export async function updateGroup(id: string, formData: FormData) {
     data: { name, slug: slugify(name), description },
   })
   revalidatePath('/admin/groups')
+  revalidateTag('taxonomy', 'max')
 }
 
 export async function deleteGroup(id: string) {
   await prisma.mechanicGroup.delete({ where: { id } })
   revalidatePath('/admin/groups')
+  revalidateTag('taxonomy', 'max')
 }
 
 // --- Mechanics ---
@@ -108,6 +117,7 @@ export async function createMechanic(formData: FormData) {
     data: { name, slug: slugify(name), description, groupId, constraints, mediaUrls },
   })
   revalidatePath('/admin/mechanics')
+  revalidateTag('taxonomy', 'max')
 }
 
 export async function updateMechanic(id: string, formData: FormData) {
@@ -128,11 +138,13 @@ export async function updateMechanic(id: string, formData: FormData) {
     data: { name, slug: slugify(name), description, groupId, constraints, mediaUrls },
   })
   revalidatePath('/admin/mechanics')
+  revalidateTag('taxonomy', 'max')
 }
 
 export async function deleteMechanic(id: string) {
   await prisma.mechanic.delete({ where: { id } })
   revalidatePath('/admin/mechanics')
+  revalidateTag('taxonomy', 'max')
 }
 
 // --- Games ---

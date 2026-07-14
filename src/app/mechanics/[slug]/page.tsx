@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { BentoBox } from '@/components/ui/BentoBox'
 import { Pill } from '@/components/ui/Pill'
+import { getCoOccurringMechanics } from '@/lib/relations'
 
 export default async function MechanicDetailPage({
   params,
@@ -13,6 +14,7 @@ export default async function MechanicDetailPage({
   const resolvedParams = await params;
   const mechanic = await prisma.mechanic.findUnique({
     where: { slug: resolvedParams.slug },
+    relationLoadStrategy: 'join',
     include: {
       group: true,
       games: {
@@ -30,6 +32,8 @@ export default async function MechanicDetailPage({
 
   const mediaUrls = mechanic.mediaUrls ? JSON.parse(mechanic.mediaUrls) : []
   const constraints = mechanic.constraints ? JSON.parse(mechanic.constraints) : []
+
+  const coOccurring = await getCoOccurringMechanics(mechanic.id)
 
   return (
     <PublicLayout>
@@ -50,6 +54,26 @@ export default async function MechanicDetailPage({
           </p>
         )}
       </header>
+
+      {/* Frequently Paired With (US-011) */}
+      {coOccurring.length > 0 && (
+        <section className="mb-16">
+          <h2 className="text-2xl font-black uppercase tracking-tight mb-2">
+            Frequently Paired With
+          </h2>
+          <p className="opacity-60 text-sm mb-6">Mechanics that co-occur in the same games.</p>
+          <div className="flex flex-wrap gap-3">
+            {coOccurring.map(({ mechanic: m, shared }) => (
+              <Link key={m.id} href={`/mechanics/${m.slug}`} className="no-underline">
+                <Pill color="purple" className="!px-3 !py-1.5 !text-sm flex items-center gap-2">
+                  {m.name}
+                  <span className="opacity-60">×{shared}</span>
+                </Pill>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Constraints & Media */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">

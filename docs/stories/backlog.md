@@ -135,7 +135,7 @@ exposure (US-012) and before US-011.
 
 | ID | Story | Lane | Notes |
 | --- | --- | --- | --- |
-| US-011 | Related games (shared mechanics) + co-occurring mechanics on detail pages | normal | Derived from GameMechanic data |
+| US-011 | Related games (shared mechanics) + co-occurring mechanics on detail pages | **done** | `src/lib/relations.ts`; Related Games on game detail, Frequently Paired With on mechanic detail. Verified e2e |
 | US-012 | Admin auth gate before any public exposure | high-risk | Hard gate: auth; needs high-risk story folder + decision |
 | US-013 | Validation ladder scripts: `validate:quick` (lint, typecheck) wired into story verification | tiny | Harness improvement |
 
@@ -163,7 +163,7 @@ richer per-game signals so filtering/sorting can be more precise.
 | --- | --- | --- | --- |
 | US-024 | Add game metric fields for richer filtering/sorting | **done** | Aggregate metrics on `Game` + sort/minRating/free filters; verified e2e. Per-platform metrics deferred to crawler (US-025) |
 | US-025 | Crawler / ingestion pipeline for external game data | high-risk | Fetch store data (Steam / App Store / Google Play); needs ADR (ToS, scheduling, dedupe, source-of-truth) |
-| US-027 | Migrate SQLite → Postgres as system of record | high-risk | **The real scale lever.** SQLite is single-writer; a crawler writing while the app reads will contend. Needs ADR + migration plan |
+| US-027 | Migrate SQLite → Postgres as system of record | **done** | Supabase (ap-south-1) via **session pooler** — direct host is IPv6-only/unreachable. Data migrated preserving ids; verified e2e. `.env` gitignored |
 | US-026 | Raw-crawl staging store (Postgres JSONB, or MongoDB if kept separate) | high-risk | Reframed after advice: NoSQL is NOT the primary DB. Staging only, ETL into Postgres. Do only if crawl payloads are messy enough to warrant it |
 
 **Recommendation (2026-07-13, owner asked to advise):** keep the relational
@@ -175,6 +175,8 @@ filtering is *measured* slow at scale — not preemptively. Suggested order:
 US-024 → US-027 → US-025 → (US-026 if needed) → search engine (only if measured).
 An ADR should record the "relational stays primary; NoSQL is staging-only"
 decision before US-026/US-027 start.
+**→ Recorded: `docs/decisions/0009-relational-primary-nosql-staging-only.md` (Accepted 2026-07-13).**
+US-025 and US-027 are now blocked on one owner decision: where Postgres is hosted.
 
 #### US-024 — Game metric fields
 

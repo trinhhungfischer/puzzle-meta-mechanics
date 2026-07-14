@@ -5,6 +5,8 @@ import { PublicLayout } from '@/components/layout/PublicLayout'
 import { Pill } from '@/components/ui/Pill'
 import { BentoBox } from '@/components/ui/BentoBox'
 import { PlatformIcon } from '@/components/ui/PlatformIcon'
+import { GameCard } from '@/components/ui/GameCard'
+import { getRelatedGames } from '@/lib/relations'
 
 export default async function GameDetailPage({
   params,
@@ -14,6 +16,7 @@ export default async function GameDetailPage({
   const resolvedParams = await params;
   const game = await prisma.game.findUnique({
     where: { slug: resolvedParams.slug },
+    relationLoadStrategy: 'join',
     include: {
       genres: true,
       platforms: {
@@ -33,6 +36,11 @@ export default async function GameDetailPage({
   const coreMechanics = game.mechanics.filter(m => m.role === 'core')
   const secondaryMechanics = game.mechanics.filter(m => m.role === 'secondary')
   const twistMechanics = game.mechanics.filter(m => m.role === 'twist')
+
+  const relatedGames = await getRelatedGames(
+    game.id,
+    game.mechanics.map(m => m.mechanicId),
+  )
 
   return (
     <PublicLayout>
@@ -151,6 +159,28 @@ export default async function GameDetailPage({
           </div>
         </div>
       </section>
+
+      {relatedGames.length > 0 && (
+        <section className="mt-20">
+          <h2 className="text-3xl font-bold tracking-tight mb-8 flex items-center gap-4">
+            <span className="w-8 h-1 rounded-full bg-gradient-to-r from-brand-violet to-brand-fuchsia" />
+            Related Games
+          </h2>
+          <p className="text-zinc-500 -mt-4 mb-8 text-sm">Ranked by shared mechanics.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {relatedGames.map(({ game: rg, shared }) => (
+              <div key={rg.id} className="relative">
+                <div className="absolute top-3 right-3 z-20">
+                  <Pill color="purple" className="!text-[0.6rem]">
+                    {shared} shared
+                  </Pill>
+                </div>
+                <GameCard game={rg} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </PublicLayout>
   )
 }
