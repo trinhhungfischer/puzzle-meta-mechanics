@@ -30,7 +30,7 @@ export default async function GenresPublicPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {genres.map(genre => (
           <Link href={`/genres/${genre.slug}`} key={genre.id} className="no-underline text-inherit group">
-            <BentoBox className="!p-6 h-full flex flex-col group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0_var(--color-outline)] transition-all">
+            <BentoBox className="!p-6 h-full flex flex-col group-hover:-translate-y-1 group-hover:shadow-xl group-hover:shadow-black/30 transition-all">
               <h2 className="text-2xl font-black uppercase tracking-tight mb-2 text-pink-solid group-hover:underline">
                 {genre.name}
               </h2>

@@ -73,7 +73,7 @@ export default async function GamesAdminPage({
       <div className="flex flex-wrap gap-2 mb-4">
         {tabs.map(([val, label, count]) => (
           <Link key={val} href={qs({ status: val, page: 1 })}
-            className={`px-4 py-2 font-bold uppercase tracking-wider text-sm border-2 border-outline ${status === val ? 'bg-outline text-box' : 'hover:bg-outline/10'}`}>
+            className={`px-4 py-2 font-bold uppercase tracking-wider text-sm rounded-lg border-2 border-outline ${status === val ? 'bg-outline text-box' : 'hover:bg-outline/10'}`}>
             {label} <span className="opacity-70">({count})</span>
           </Link>
         ))}
@@ -100,7 +100,7 @@ export default async function GamesAdminPage({
             {genres.map(g => <option key={g.id} value={g.slug}>{g.name}</option>)}
           </select>
         </div>
-        <button type="submit" className="px-4 py-2 font-bold uppercase tracking-wider text-sm border-2 border-blue-solid text-blue-solid hover:bg-blue-solid hover:text-box transition-colors">
+        <button type="submit" className="px-4 py-2 font-bold uppercase tracking-wider text-sm rounded-lg border-2 border-blue-solid text-blue-solid hover:bg-blue-solid hover:text-box transition-colors">
           Apply
         </button>
         {(q || platform || genre) && (
@@ -120,11 +120,11 @@ export default async function GamesAdminPage({
       {totalPages > 1 && (
         <div className="flex justify-between items-center mt-6">
           {page > 1
-            ? <Link href={qs({ page: page - 1 })} className="px-4 py-2 font-bold uppercase text-sm border-2 border-outline hover:bg-outline hover:text-box">← Prev</Link>
+            ? <Link href={qs({ page: page - 1 })} className="px-4 py-2 font-bold uppercase text-sm rounded-lg border-2 border-outline hover:bg-outline hover:text-box">← Prev</Link>
             : <span />}
           <span className="text-sm font-bold opacity-70">{page} / {totalPages}</span>
           {page < totalPages
-            ? <Link href={qs({ page: page + 1 })} className="px-4 py-2 font-bold uppercase text-sm border-2 border-outline hover:bg-outline hover:text-box">Next →</Link>
+            ? <Link href={qs({ page: page + 1 })} className="px-4 py-2 font-bold uppercase text-sm rounded-lg border-2 border-outline hover:bg-outline hover:text-box">Next →</Link>
             : <span />}
         </div>
       )}

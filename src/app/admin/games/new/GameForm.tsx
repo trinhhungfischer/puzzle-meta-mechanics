@@ -242,7 +242,7 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
           <button
             type="button"
             onClick={discardChanges}
-            className="px-6 py-3 font-bold uppercase tracking-wider border-2 border-outline hover:bg-outline hover:text-box transition-colors"
+            className="px-6 py-3 font-bold uppercase tracking-wider rounded-xl border-2 border-outline hover:bg-outline hover:text-box transition-colors"
           >
             Discard Changes
           </button>

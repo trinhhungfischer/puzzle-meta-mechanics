@@ -69,7 +69,7 @@ export default async function MechanicsPublicPage({
       ))}
 
       {visibleGroups.length === 0 && (
-        <div className="p-12 text-center opacity-50 bg-black/10 rounded border-2 border-outline/50">
+        <div className="p-12 text-center opacity-50 bg-black/10 rounded-xl border border-outline/50">
           <p className="text-xl font-bold">No mechanics found matching "{q}".</p>
         </div>
       )}

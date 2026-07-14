@@ -56,7 +56,7 @@ export default function GameReviewTable({ games }: { games: Row[] }) {
   return (
     <div>
       {/* Bulk action bar */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-3 mb-4 p-3 bg-box border-2 border-outline">
+      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-3 mb-4 p-3 bg-box border-2 border-outline rounded-xl">
         <label className="flex items-center gap-2 cursor-pointer font-bold text-sm uppercase tracking-wider">
           <input type="checkbox" checked={allOnPage} onChange={toggleAll} className="w-4 h-4 accent-brand-violet" />
           Select page
@@ -64,15 +64,15 @@ export default function GameReviewTable({ games }: { games: Row[] }) {
         <span className="text-sm font-bold opacity-70">{selected.size} selected</span>
         <div className="flex gap-2 ml-auto">
           <button onClick={publish} disabled={pending || selected.size === 0}
-            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider border-2 border-green-solid text-green-solid disabled:opacity-40 hover:bg-green-solid hover:text-box transition-colors">
+            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-green-solid text-green-solid disabled:opacity-40 hover:bg-green-solid hover:text-box transition-colors">
             Publish
           </button>
           <button onClick={unpublish} disabled={pending || selected.size === 0}
-            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider border-2 border-outline disabled:opacity-40 hover:bg-outline hover:text-box transition-colors">
+            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-outline disabled:opacity-40 hover:bg-outline hover:text-box transition-colors">
             Unpublish
           </button>
           <button onClick={remove} disabled={pending || selected.size === 0}
-            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider border-2 border-red-600 text-red-600 disabled:opacity-40 hover:bg-red-600 hover:text-white transition-colors">
+            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-red-600 text-red-600 disabled:opacity-40 hover:bg-red-600 hover:text-white transition-colors">
             Delete
           </button>
         </div>
@@ -84,11 +84,11 @@ export default function GameReviewTable({ games }: { games: Row[] }) {
           const isSel = selected.has(g.id)
           return (
             <div key={g.id}
-              className={`flex items-center gap-3 p-2 border-2 ${isSel ? 'border-brand-violet bg-brand-violet/5' : 'border-outline'}`}>
+              className={`flex items-center gap-3 p-2 rounded-xl border-2 ${isSel ? 'border-brand-violet bg-brand-violet/5' : 'border-outline'}`}>
               <input type="checkbox" checked={isSel} onChange={() => toggle(g.id)} className="w-4 h-4 accent-brand-violet flex-shrink-0" />
               {g.coverUrl
-                ? <img src={g.coverUrl} alt="" className="w-12 h-12 object-cover flex-shrink-0 border border-outline" />
-                : <div className="w-12 h-12 flex-shrink-0 bg-box border border-outline flex items-center justify-center font-black opacity-40">{g.title[0]}</div>}
+                ? <img src={g.coverUrl} alt="" className="w-12 h-12 object-cover flex-shrink-0 rounded-lg border border-outline" />
+                : <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-box border border-outline flex items-center justify-center font-black opacity-40">{g.title[0]}</div>}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-bold truncate">{g.title}</span>
