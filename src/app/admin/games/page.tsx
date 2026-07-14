@@ -73,7 +73,11 @@ export default async function GamesAdminPage({
       <div className="flex flex-wrap gap-2 mb-4">
         {tabs.map(([val, label, count]) => (
           <Link key={val} href={qs({ status: val, page: 1 })}
-            className={`px-4 py-2 font-bold uppercase tracking-wider text-sm rounded-lg border-2 border-outline ${status === val ? 'bg-outline text-box' : 'hover:bg-outline/10'}`}>
+            className={`px-4 py-2 font-bold uppercase tracking-wider text-sm rounded-lg border-2 transition-colors ${
+              status === val
+                ? 'bg-brand-violet border-brand-violet text-white shadow-[0_0_20px_-4px_rgba(139,92,246,0.6)]'
+                : 'border-white/15 text-zinc-400 hover:text-white hover:border-white/30'
+            }`}>
             {label} <span className="opacity-70">({count})</span>
           </Link>
         ))}
