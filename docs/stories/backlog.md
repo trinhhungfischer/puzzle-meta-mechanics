@@ -159,7 +159,7 @@ US-010 → US-005 → E04.
 | ID | Story | Lane | Notes |
 | --- | --- | --- | --- |
 | US-032 | Mechanic cards show representative game icons | **done** | On the mechanics index + mechanic detail, render 3-4 cover thumbnails of games using that mechanic so cards are visually scannable. Presentation-only; data already exists via GameMechanic |
-| US-033 | Google OAuth login for admin portal | high-risk | Gate `/admin` behind Google sign-in — **realizes US-012 auth**. `/admin` is currently open (CRUD + bulk delete reachable by anyone). Needs an ADR (auth boundary, session strategy) + an allowlist of permitted Google accounts. Likely NextAuth/Auth.js with the Google provider |
+| US-033 | Google OAuth login for admin portal | **done** | Gate `/admin` behind Google sign-in — **realizes US-012 auth**. `/admin` is currently open (CRUD + bulk delete reachable by anyone). Needs an ADR (auth boundary, session strategy) + an allowlist of permitted Google accounts. Likely NextAuth/Auth.js with the Google provider |
 
 ### E09 Discovery & filtering (new — 2026-07-14)
 

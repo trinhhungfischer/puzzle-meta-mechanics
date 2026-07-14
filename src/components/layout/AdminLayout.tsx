@@ -1,7 +1,10 @@
 import React from 'react'
 import Link from 'next/link'
+import { auth, signOut } from "@/auth"
 
-export function AdminLayout({ children }: { children: React.ReactNode }) {
+export async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth()
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-zinc-950 text-zinc-100 selection:bg-brand-fuchsia/30 selection:text-white">
       {/* Admin Sidebar */}
@@ -17,7 +20,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             &larr; Back to Public Site
           </Link>
         </div>
-        <nav className="flex flex-row md:flex-col p-4 gap-1 overflow-x-auto">
+        <nav className="flex flex-row md:flex-col p-4 gap-1 overflow-x-auto flex-grow">
           <AdminNavLink href="/admin/games">Games</AdminNavLink>
           <AdminNavLink href="/admin/mechanics">Mechanics</AdminNavLink>
           <AdminNavLink href="/admin/groups">Groups</AdminNavLink>
@@ -26,6 +29,35 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <div className="my-3 mx-2 border-t md:border-l-0 border-white/10 hidden md:block" />
           <AdminNavLink href="/admin/import">JSON Import</AdminNavLink>
         </nav>
+        
+        {/* User Profile & Sign Out */}
+        {session?.user && (
+          <div className="p-4 border-t border-white/10 mt-auto bg-black/20 flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              {session.user.image ? (
+                <img src={session.user.image} alt="User Avatar" className="w-8 h-8 rounded-full" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-brand-cyan/50 flex items-center justify-center text-xs font-bold text-white">
+                  {session.user.name?.charAt(0) || session.user.email?.charAt(0) || 'U'}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{session.user.name}</p>
+                <p className="text-xs text-zinc-500 truncate">{session.user.email}</p>
+              </div>
+            </div>
+            <form
+              action={async () => {
+                "use server"
+                await signOut({ redirectTo: "/" })
+              }}
+            >
+              <button type="submit" className="w-full text-left text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 px-3 py-2 rounded-lg transition-colors">
+                Sign Out
+              </button>
+            </form>
+          </div>
+        )}
       </aside>
 
       {/* Main Content */}
