@@ -60,12 +60,20 @@ async function main() {
   }
   console.log(`  Android: ${android.length} apps with details`)
 
-  // 3. Merge by slug
+  // 3. Merge by normalized slug to aggressive dedupe clones
+  const normalizeTitle = (t: string) => {
+    let s = t.toLowerCase()
+    s = s.split(/[-:–—]/)[0] // Take only the part before a dash or colon
+    s = s.replace(/\b(puzzle|game|3d|free|offline|hd|new|2024)\b/gi, '')
+    s = s.replace(/[^a-z0-9]/g, '')
+    return s || slugify(t) // fallback
+  }
+
   const bySlug = new Map<string, MobileGame>()
-  for (const g of ios) bySlug.set(slugify(g.title), g)
+  for (const g of ios) bySlug.set(normalizeTitle(g.title), g)
   let matched = 0
   for (const g of android) {
-    const slug = slugify(g.title)
+    const slug = normalizeTitle(g.title)
     if (bySlug.has(slug)) { bySlug.set(slug, merge(bySlug.get(slug)!, g)); matched++ }
     else bySlug.set(slug, g)
   }

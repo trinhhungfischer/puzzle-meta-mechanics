@@ -87,6 +87,17 @@ async function main() {
         continue
       }
 
+      // 3. Heuristic Puzzle Filter: skip false-positive Steam tags
+      const textToSearch = `${details.name} ${details.short_description || ''}`.toLowerCase()
+      const hasPuzzleKeywords = /(puzzle|logic|brain|riddle|sokoban|sudoku|match-3|match 3|escape room|hidden object|physics)/.test(textToSearch)
+      const genresList = (details.genres ?? []).map((g: any) => g.description.toLowerCase())
+      const isNoisyGenre = genresList.some((g: string) => ['sports', 'racing', 'massively multiplayer', 'rpg', 'simulation'].includes(g))
+      
+      if (!hasPuzzleKeywords && isNoisyGenre) {
+        console.log(`  ${id}: skipped (heuristic: noisy non-puzzle ${genresList.join(',')})`)
+        continue
+      }
+
       // 3. ETL → Game
       const { year, date } = parseReleaseDate(details.release_date?.date)
       const genreConnect: { id: string }[] = []

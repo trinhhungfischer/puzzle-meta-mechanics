@@ -15,7 +15,7 @@ export function CrawlButtons() {
     setIsRunning(true)
     setLogs([{ text: `Starting ${target}...` }])
     
-    const eventSource = new EventSource(`/api/admin/crawl?target=${target}`)
+    const eventSource = new EventSource(`/api/admin/crawl?target=${target}`, { withCredentials: true })
     
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data)
