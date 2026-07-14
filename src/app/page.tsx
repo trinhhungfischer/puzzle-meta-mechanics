@@ -18,8 +18,27 @@ export default async function Home({
   const platform = typeof resolvedParams.platform === 'string' ? resolvedParams.platform : undefined
   const group = typeof resolvedParams.group === 'string' ? resolvedParams.group : undefined
   const minRatingRaw = typeof resolvedParams.minRating === 'string' ? Number(resolvedParams.minRating) : NaN
-  const minRating = Number.isFinite(minRatingRaw) && minRatingRaw > 0 ? minRatingRaw : undefined
+  const minRating = Number.isFinite(minRatingRaw) && minRatingRaw >= 0 ? minRatingRaw : undefined
+  const maxRatingRaw = typeof resolvedParams.maxRating === 'string' ? Number(resolvedParams.maxRating) : NaN
+  const maxRating = Number.isFinite(maxRatingRaw) && maxRatingRaw >= 0 ? maxRatingRaw : undefined
+
+  const minDownloadsRaw = typeof resolvedParams.minDownloads === 'string' ? Number(resolvedParams.minDownloads) : NaN
+  const minDownloads = Number.isFinite(minDownloadsRaw) && minDownloadsRaw >= 0 ? minDownloadsRaw : undefined
+  const maxDownloadsRaw = typeof resolvedParams.maxDownloads === 'string' ? Number(resolvedParams.maxDownloads) : NaN
+  const maxDownloads = Number.isFinite(maxDownloadsRaw) && maxDownloadsRaw >= 0 ? maxDownloadsRaw : undefined
+
+  const minPriceRaw = typeof resolvedParams.minPrice === 'string' ? Number(resolvedParams.minPrice) : NaN
+  const minPrice = Number.isFinite(minPriceRaw) && minPriceRaw >= 0 ? minPriceRaw : undefined
+  const maxPriceRaw = typeof resolvedParams.maxPrice === 'string' ? Number(resolvedParams.maxPrice) : NaN
+  const maxPrice = Number.isFinite(maxPriceRaw) && maxPriceRaw >= 0 ? maxPriceRaw : undefined
+
+  const minYearRaw = typeof resolvedParams.minYear === 'string' ? Number(resolvedParams.minYear) : NaN
+  const minYear = Number.isFinite(minYearRaw) && minYearRaw > 0 ? minYearRaw : undefined
+  const maxYearRaw = typeof resolvedParams.maxYear === 'string' ? Number(resolvedParams.maxYear) : NaN
+  const maxYear = Number.isFinite(maxYearRaw) && maxYearRaw > 0 ? maxYearRaw : undefined
+
   const freeOnly = resolvedParams.free === '1'
+  const mechanicMode = typeof resolvedParams.mechanicMode === 'string' ? resolvedParams.mechanicMode : 'AND'
   const sort = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : 'title'
   const page = Math.max(1, parseInt(typeof resolvedParams.page === 'string' ? resolvedParams.page : '1', 10) || 1)
 
@@ -48,8 +67,32 @@ export default async function Home({
     where.mechanics = { some: { mechanic: { group: { slug: group } } } }
   }
 
-  if (minRating !== undefined) {
-    where.ratingScore = { gte: minRating }
+  if (minRating !== undefined || maxRating !== undefined) {
+    where.ratingScore = {
+      ...(minRating !== undefined && { gte: minRating }),
+      ...(maxRating !== undefined && { lte: maxRating })
+    }
+  }
+
+  if (minDownloads !== undefined || maxDownloads !== undefined) {
+    where.downloads = {
+      ...(minDownloads !== undefined && { gte: minDownloads }),
+      ...(maxDownloads !== undefined && { lte: maxDownloads })
+    }
+  }
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    where.price = {
+      ...(minPrice !== undefined && { gte: minPrice }),
+      ...(maxPrice !== undefined && { lte: maxPrice })
+    }
+  }
+
+  if (minYear !== undefined || maxYear !== undefined) {
+    where.releaseYear = {
+      ...(minYear !== undefined && { gte: minYear }),
+      ...(maxYear !== undefined && { lte: maxYear })
+    }
   }
 
   if (freeOnly) {
@@ -57,9 +100,16 @@ export default async function Home({
   }
 
   if (mechanics.length > 0) {
-    where.AND = mechanics.map(mechSlug => ({
-      mechanics: { some: { mechanic: { slug: mechSlug } } }
-    }))
+    if (mechanicMode === 'OR') {
+      where.mechanics = { some: { mechanic: { slug: { in: mechanics } } } }
+    } else {
+      where.AND = [
+        ...(where.AND || []),
+        ...mechanics.map(mechSlug => ({
+          mechanics: { some: { mechanic: { slug: mechSlug } } }
+        }))
+      ]
+    }
   }
 
   // Postgres sorts NULLs FIRST on DESC by default, which would float games with
@@ -98,9 +148,19 @@ export default async function Home({
     if (genre) params.set('genre', genre)
     if (platform) params.set('platform', platform)
     if (group) params.set('group', group)
-    if (mechanics.length > 0) params.set('mechanic', mechanics.join(','))
+    if (mechanics.length > 0) {
+      params.set('mechanic', mechanics.join(','))
+      if (mechanicMode !== 'AND') params.set('mechanicMode', mechanicMode)
+    }
     if (sort !== 'title') params.set('sort', sort)
     if (minRating !== undefined) params.set('minRating', String(minRating))
+    if (maxRating !== undefined) params.set('maxRating', String(maxRating))
+    if (minDownloads !== undefined) params.set('minDownloads', String(minDownloads))
+    if (maxDownloads !== undefined) params.set('maxDownloads', String(maxDownloads))
+    if (minPrice !== undefined) params.set('minPrice', String(minPrice))
+    if (maxPrice !== undefined) params.set('maxPrice', String(maxPrice))
+    if (minYear !== undefined) params.set('minYear', String(minYear))
+    if (maxYear !== undefined) params.set('maxYear', String(maxYear))
     if (freeOnly) params.set('free', '1')
     if (p > 1) params.set('page', String(p))
     const s = params.toString()
@@ -144,8 +204,16 @@ export default async function Home({
             currentPlatform={platform}
             currentGroup={group}
             currentMechanics={mechanics}
+            currentMechanicMode={mechanicMode}
             currentSort={sort}
             currentMinRating={minRating}
+            currentMaxRating={maxRating}
+            currentMinDownloads={minDownloads}
+            currentMaxDownloads={maxDownloads}
+            currentMinPrice={minPrice}
+            currentMaxPrice={maxPrice}
+            currentMinYear={minYear}
+            currentMaxYear={maxYear}
             currentFreeOnly={freeOnly}
           />
         </aside>
