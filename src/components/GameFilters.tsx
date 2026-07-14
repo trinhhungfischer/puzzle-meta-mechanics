@@ -12,21 +12,24 @@ type Props = {
   genres: any[]
   platforms: any[]
   mechanics: any[]
+  groups: any[]
   currentQ?: string
   currentGenre?: string
   currentPlatform?: string
+  currentGroup?: string
   currentMechanics: string[]
   currentSort?: string
   currentMinRating?: number
   currentFreeOnly?: boolean
 }
 
-export default function GameFilters({ genres, platforms, mechanics, currentQ, currentGenre, currentPlatform, currentMechanics, currentSort, currentMinRating, currentFreeOnly }: Props) {
+export default function GameFilters({ genres, platforms, mechanics, groups, currentQ, currentGenre, currentPlatform, currentGroup, currentMechanics, currentSort, currentMinRating, currentFreeOnly }: Props) {
   const router = useRouter()
 
   const [localQ, setLocalQ] = useState(currentQ || '')
   const [localGenre, setLocalGenre] = useState(currentGenre || '')
   const [localPlatform, setLocalPlatform] = useState(currentPlatform || '')
+  const [localGroup, setLocalGroup] = useState(currentGroup || '')
   const [localMechanics, setLocalMechanics] = useState<string[]>(currentMechanics || [])
   const [localSort, setLocalSort] = useState(currentSort || 'title')
   const [localMinRating, setLocalMinRating] = useState(currentMinRating ? String(currentMinRating) : '')
@@ -36,6 +39,7 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
   useEffect(() => { setLocalQ(currentQ || '') }, [currentQ])
   useEffect(() => { setLocalGenre(currentGenre || '') }, [currentGenre])
   useEffect(() => { setLocalPlatform(currentPlatform || '') }, [currentPlatform])
+  useEffect(() => { setLocalGroup(currentGroup || '') }, [currentGroup])
   useEffect(() => { setLocalMechanics(currentMechanics || []) }, [currentMechanics])
   useEffect(() => { setLocalSort(currentSort || 'title') }, [currentSort])
   useEffect(() => { setLocalMinRating(currentMinRating ? String(currentMinRating) : '') }, [currentMinRating])
@@ -52,6 +56,9 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
 
     const p = newFilters.platform !== undefined ? newFilters.platform : localPlatform
     if (p) params.set('platform', p)
+
+    const grp = newFilters.group !== undefined ? newFilters.group : localGroup
+    if (grp) params.set('group', grp)
 
     const m = newFilters.mechanics !== undefined ? newFilters.mechanics : localMechanics
     if (m && m.length > 0) {
@@ -91,6 +98,11 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
     updateFilters({ platform: val })
   }
 
+  const handleGroupChange = (val: string) => {
+    setLocalGroup(val)
+    updateFilters({ group: val })
+  }
+
   const handleMechanicsChange = (vals: string[]) => {
     setLocalMechanics(vals)
     updateFilters({ mechanics: vals })
@@ -117,6 +129,7 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
     value: p.slug,
     icon: <PlatformIcon name={p.name} className="w-4 h-4" />
   }))
+  const groupOptions = groups.map(g => ({ label: g.name, value: g.slug }))
   const mechanicOptions = mechanics.map(m => ({ label: m.name, value: m.slug }))
   const sortOptions = [
     { label: 'Title (A-Z)', value: 'title' },
@@ -156,6 +169,18 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
           value={localPlatform} 
           onChange={handlePlatformChange} 
           placeholder="Any Platform"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-bold mb-2 text-zinc-300 flex justify-between items-center">
+          <span>Mechanic Group</span>
+        </label>
+        <Dropdown 
+          options={groupOptions} 
+          value={localGroup} 
+          onChange={handleGroupChange} 
+          placeholder="Any Group"
         />
       </div>
 
@@ -218,6 +243,7 @@ export default function GameFilters({ genres, platforms, mechanics, currentQ, cu
             setLocalQ('')
             setLocalGenre('')
             setLocalPlatform('')
+            setLocalGroup('')
             setLocalMechanics([])
             setLocalSort('title')
             setLocalMinRating('')

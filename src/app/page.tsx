@@ -3,7 +3,7 @@ import Link from 'next/link'
 import GameFilters from '@/components/GameFilters'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { GameCard } from '@/components/ui/GameCard'
-import { getGenres, getPlatforms, getMechanicsList } from '@/lib/taxonomy'
+import { getGenres, getPlatforms, getMechanicsList, getMechanicGroups } from '@/lib/taxonomy'
 
 const PAGE_SIZE = 24
 
@@ -16,6 +16,7 @@ export default async function Home({
   const q = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined
   const genre = typeof resolvedParams.genre === 'string' ? resolvedParams.genre : undefined
   const platform = typeof resolvedParams.platform === 'string' ? resolvedParams.platform : undefined
+  const group = typeof resolvedParams.group === 'string' ? resolvedParams.group : undefined
   const minRatingRaw = typeof resolvedParams.minRating === 'string' ? Number(resolvedParams.minRating) : NaN
   const minRating = Number.isFinite(minRatingRaw) && minRatingRaw > 0 ? minRatingRaw : undefined
   const freeOnly = resolvedParams.free === '1'
@@ -43,6 +44,10 @@ export default async function Home({
     where.platforms = { some: { platform: { slug: platform } } }
   }
 
+  if (group) {
+    where.mechanics = { some: { mechanic: { group: { slug: group } } } }
+  }
+
   if (minRating !== undefined) {
     where.ratingScore = { gte: minRating }
   }
@@ -66,7 +71,7 @@ export default async function Home({
     sort === 'year' ? { releaseYear: { sort: 'desc', nulls: 'last' } } :
     { title: 'asc' }
 
-  const [total, games, allGenres, allPlatforms, allMechanics] = await Promise.all([
+  const [total, games, allGenres, allPlatforms, allMechanics, allGroups] = await Promise.all([
     prisma.game.count({ where }),
     prisma.game.findMany({
       where,
@@ -83,6 +88,7 @@ export default async function Home({
     getGenres(),
     getPlatforms(),
     getMechanicsList(),
+    getMechanicGroups(),
   ])
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -91,6 +97,7 @@ export default async function Home({
     if (q) params.set('q', q)
     if (genre) params.set('genre', genre)
     if (platform) params.set('platform', platform)
+    if (group) params.set('group', group)
     if (mechanics.length > 0) params.set('mechanic', mechanics.join(','))
     if (sort !== 'title') params.set('sort', sort)
     if (minRating !== undefined) params.set('minRating', String(minRating))
@@ -131,9 +138,11 @@ export default async function Home({
             genres={allGenres}
             platforms={allPlatforms}
             mechanics={allMechanics}
+            groups={allGroups}
             currentQ={q}
             currentGenre={genre}
             currentPlatform={platform}
+            currentGroup={group}
             currentMechanics={mechanics}
             currentSort={sort}
             currentMinRating={minRating}

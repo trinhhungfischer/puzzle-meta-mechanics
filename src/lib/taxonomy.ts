@@ -29,3 +29,9 @@ export const getMechanicsList = unstable_cache(
   // admin mutations that call revalidateTag) show up within a few minutes.
   { tags: ['taxonomy'], revalidate: 300 },
 )
+
+export const getMechanicGroups = unstable_cache(
+  () => prisma.mechanicGroup.findMany({ orderBy: { name: 'asc' } }),
+  ['taxonomy:mechanic_groups'],
+  { tags: ['taxonomy'], revalidate: 300 },
+)
