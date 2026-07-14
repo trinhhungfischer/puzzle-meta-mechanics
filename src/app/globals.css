@@ -31,7 +31,15 @@
   }
 }
 
-/* Base resets for forms to look nice in dark mode */
-input, textarea, select {
+/* Base resets for text-like form fields to look nice in dark mode.
+   Checkboxes/radios are excluded so utility sizing (w-4 h-4) isn't overridden
+   by w-full/padding, which turned them into huge boxes. */
+input:not([type='checkbox']):not([type='radio']), textarea, select {
   @apply bg-zinc-900/50 border border-white/10 rounded-xl px-4 py-3 text-zinc-100 w-full outline-none transition-all focus:border-brand-violet focus:ring-1 focus:ring-brand-violet;
+}
+
+/* Checkboxes/radios keep their natural box; utility w-4/h-4 sets the size. */
+input[type='checkbox'], input[type='radio'] {
+  width: auto;
+  background: none;
 }
