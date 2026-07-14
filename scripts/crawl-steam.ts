@@ -81,6 +81,12 @@ async function main() {
         continue
       }
 
+      const MIN_REVIEWS = 10
+      if ((reviews?.total_reviews ?? 0) < MIN_REVIEWS) {
+        console.log(`  ${id}: skipped due to low reviews (${reviews?.total_reviews ?? 0})`)
+        continue
+      }
+
       // 3. ETL → Game
       const { year, date } = parseReleaseDate(details.release_date?.date)
       const genreConnect: { id: string }[] = []

@@ -84,6 +84,12 @@ async function main() {
   let etl = 0
   for (const [slug, g] of bySlug) {
     try {
+      const MIN_REVIEWS = 10
+      if ((g.reviewCount ?? 0) < MIN_REVIEWS) {
+        console.log(`  Skipped ${g.title} due to low reviews (${g.reviewCount})`)
+        continue
+      }
+
       const genreConnect: { id: string }[] = []
       for (const gn of g.genres) {
         const gSlug = slugify(gn)

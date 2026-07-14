@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { getGenres, getPlatforms } from '@/lib/taxonomy'
 import GameReviewTable from './GameReviewTable'
+import { CrawlButtons } from './CrawlButtons'
 
 const PAGE_SIZE = 50
 
@@ -74,7 +75,10 @@ export default async function GamesAdminPage({
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h1 className="text-3xl font-black uppercase tracking-widest m-0">Review Games</h1>
-        <Button href="/admin/games/new">+ Add New Game</Button>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <CrawlButtons />
+          <Button href="/admin/games/new">+ Add New Game</Button>
+        </div>
       </div>
 
       {/* Status tabs */}
