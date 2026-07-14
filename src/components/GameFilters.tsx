@@ -181,7 +181,7 @@ export default function GameFilters({
 
   return (
     <BentoBox color="blue" header="Filters" className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
-      <div className="mb-6">
+      <div className="mb-4">
         <label className="block text-sm font-bold mb-2 text-zinc-300">Search Games</label>
         <input 
           type="text" 
@@ -192,22 +192,22 @@ export default function GameFilters({
         />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4">
         <label className="block text-sm font-bold mb-2 text-zinc-300">Genre</label>
         <Dropdown options={genreOptions} value={localGenre} onChange={handleDropdown('genre')} placeholder="Any Genre" />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4">
         <label className="block text-sm font-bold mb-2 text-zinc-300">Platform</label>
         <Dropdown options={platformOptions} value={localPlatform} onChange={handleDropdown('platform')} placeholder="Any Platform" />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4">
         <label className="block text-sm font-bold mb-2 text-zinc-300">Mechanic Group</label>
         <Dropdown options={groupOptions} value={localGroup} onChange={handleDropdown('group')} placeholder="Any Group" />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
           <label className="text-sm font-bold text-zinc-300">Mechanics</label>
           <div className="flex bg-black/40 rounded-lg p-0.5 border border-white/5">
@@ -228,42 +228,46 @@ export default function GameFilters({
         <MultiSelect options={mechanicOptions} values={localMechanics} onChange={handleMechanicsChange} placeholder="Search mechanics..." />
       </div>
       
-      <div className="mb-6">
+      <div className="mb-4">
         <label className="block text-sm font-bold mb-2 text-zinc-300">Sort By</label>
         <Dropdown options={sortOptions} value={localSort} onChange={handleDropdown('sort')} placeholder="Title (A-Z)" />
       </div>
 
-      <div className="space-y-4 mb-6 pt-4 border-t border-white/10">
-        <label className="block text-sm font-bold text-zinc-300 uppercase tracking-wider">Numeric Ranges</label>
-        
-        <RangeFilter 
-          label="Rating (0-100)" 
-          min={localMinRating} max={localMaxRating} 
-          onMinChange={handleRangeChange('minRating', setLocalMinRating)} 
-          onMaxChange={handleRangeChange('maxRating', setLocalMaxRating)} 
-        />
-        <RangeFilter 
-          label="Downloads" 
-          min={localMinDownloads} max={localMaxDownloads} 
-          onMinChange={handleRangeChange('minDownloads', setLocalMinDownloads)} 
-          onMaxChange={handleRangeChange('maxDownloads', setLocalMaxDownloads)} 
-        />
-        <RangeFilter 
-          label="Price ($)" 
-          min={localMinPrice} max={localMaxPrice} 
-          onMinChange={handleRangeChange('minPrice', setLocalMinPrice)} 
-          onMaxChange={handleRangeChange('maxPrice', setLocalMaxPrice)} 
-          step="0.01"
-        />
-        <RangeFilter 
-          label="Release Year" 
-          min={localMinYear} max={localMaxYear} 
-          onMinChange={handleRangeChange('minYear', setLocalMinYear)} 
-          onMaxChange={handleRangeChange('maxYear', setLocalMaxYear)} 
-        />
-      </div>
+      <details className="group mb-4 pt-4 border-t border-white/10">
+        <summary className="flex items-center justify-between cursor-pointer list-none text-sm font-bold text-zinc-300 uppercase tracking-wider select-none">
+          Numeric Ranges
+          <span className="transition-transform group-open:rotate-180 opacity-50">▼</span>
+        </summary>
+        <div className="space-y-4 pt-4">
+          <RangeFilter 
+            label="Rating (0-100)" 
+            min={localMinRating} max={localMaxRating} 
+            onMinChange={handleRangeChange('minRating', setLocalMinRating)} 
+            onMaxChange={handleRangeChange('maxRating', setLocalMaxRating)} 
+          />
+          <RangeFilter 
+            label="Downloads" 
+            min={localMinDownloads} max={localMaxDownloads} 
+            onMinChange={handleRangeChange('minDownloads', setLocalMinDownloads)} 
+            onMaxChange={handleRangeChange('maxDownloads', setLocalMaxDownloads)} 
+          />
+          <RangeFilter 
+            label="Price ($)" 
+            min={localMinPrice} max={localMaxPrice} 
+            onMinChange={handleRangeChange('minPrice', setLocalMinPrice)} 
+            onMaxChange={handleRangeChange('maxPrice', setLocalMaxPrice)} 
+            step="0.01"
+          />
+          <RangeFilter 
+            label="Release Year" 
+            min={localMinYear} max={localMaxYear} 
+            onMinChange={handleRangeChange('minYear', setLocalMinYear)} 
+            onMaxChange={handleRangeChange('maxYear', setLocalMaxYear)} 
+          />
+        </div>
+      </details>
 
-      <div className="mb-6 pt-4 border-t border-white/10">
+      <div className="mb-4 pt-4 border-t border-white/10">
         <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-zinc-300">
           <input type="checkbox" checked={localFreeOnly} onChange={(e) => handleFreeOnlyChange(e.target.checked)} className="w-4 h-4 accent-brand-violet" />
           Free games only
