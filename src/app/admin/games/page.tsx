@@ -28,8 +28,8 @@ export default async function GamesAdminPage({
 
   const orderBy: any =
     sort === 'created' ? { createdAt: 'desc' } :
-    sort === 'reviews' ? { reviewCount: 'desc' } :
-    sort === 'rating' ? { ratingScore: 'desc' } :
+    sort === 'reviews' ? { reviewCount: { sort: 'desc', nulls: 'last' } } :
+    sort === 'rating' ? { ratingScore: { sort: 'desc', nulls: 'last' } } :
     sort === 'title' ? { title: 'asc' } :
     { updatedAt: 'desc' } // default: most recently updated first
 

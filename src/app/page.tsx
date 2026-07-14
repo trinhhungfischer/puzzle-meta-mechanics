@@ -57,13 +57,13 @@ export default async function Home({
     }))
   }
 
-  // SQLite sorts NULLs first ascending / last descending, so metric desc sorts
-  // put games with no data at the bottom — the behaviour we want.
+  // Postgres sorts NULLs FIRST on DESC by default, which would float games with
+  // no metric to the top — so pin NULLs last on every metric sort.
   const orderBy: any =
-    sort === 'rating' ? { ratingScore: 'desc' } :
-    sort === 'downloads' ? { downloads: 'desc' } :
-    sort === 'reviews' ? { reviewCount: 'desc' } :
-    sort === 'year' ? { releaseYear: 'desc' } :
+    sort === 'rating' ? { ratingScore: { sort: 'desc', nulls: 'last' } } :
+    sort === 'downloads' ? { downloads: { sort: 'desc', nulls: 'last' } } :
+    sort === 'reviews' ? { reviewCount: { sort: 'desc', nulls: 'last' } } :
+    sort === 'year' ? { releaseYear: { sort: 'desc', nulls: 'last' } } :
     { title: 'asc' }
 
   const [total, games, allGenres, allPlatforms, allMechanics] = await Promise.all([
