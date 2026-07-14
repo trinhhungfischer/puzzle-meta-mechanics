@@ -54,3 +54,27 @@ export const getMechanicGroups = unstable_cache(
   ['taxonomy:mechanic_groups'],
   { tags: ['taxonomy'], revalidate: 300 },
 )
+
+export const getCachedMechanicGroupsWithGames = unstable_cache(
+  () => prisma.mechanicGroup.findMany({
+    orderBy: { name: 'asc' },
+    include: {
+      mechanics: {
+        orderBy: { name: 'asc' },
+        include: {
+          _count: { select: { games: true } },
+          games: {
+            where: { game: { status: 'published' } },
+            select: {
+              game: {
+                select: { title: true, coverUrl: true }
+              }
+            }
+          }
+        }
+      }
+    }
+  }),
+  ['taxonomy:mechanic_groups_with_games'],
+  { tags: ['taxonomy'], revalidate: 300 }
+)

@@ -1,8 +1,26 @@
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { GameCard } from '@/components/ui/GameCard'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const genre = await prisma.genre.findUnique({
+    where: { slug: resolvedParams.slug },
+    select: { name: true, description: true }
+  })
+  if (!genre) return {}
+  return {
+    title: `${genre.name} Games | Puzzle Meta-Mechanic`,
+    description: genre.description || `Browse puzzle games in the ${genre.name} genre.`,
+    openGraph: {
+      title: `${genre.name} Games`,
+      description: genre.description || `Browse puzzle games in the ${genre.name} genre.`,
+    }
+  }
+}
 
 export default async function GenreDetailPage({
   params,

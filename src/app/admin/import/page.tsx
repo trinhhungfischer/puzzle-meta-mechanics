@@ -54,11 +54,17 @@ export default function ImportPage() {
   return (
     <div>
       <h1 style={{ textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '2rem', marginBottom: '1rem' }}>
-        JSON Bulk Import
+        JSON Bulk Import / Export
       </h1>
       <p style={{ marginBottom: '2rem', opacity: 0.8 }}>
         Paste a JSON array of games to bulk import. Existing games with the same title/slug will be updated.
       </p>
+
+      <div style={{ marginBottom: '2rem' }}>
+        <a href="/api/export" download className="btn" style={{ textDecoration: 'none', padding: '0.75rem 1.5rem', background: 'var(--brand-violet)', color: '#fff', borderRadius: '8px', fontWeight: 'bold' }}>
+          Download Full Catalog Backup (JSON)
+        </a>
+      </div>
 
       <div className="bento-box color-pink" style={{ marginBottom: '2rem' }}>
         <div className="bento-header">Expected Schema</div>

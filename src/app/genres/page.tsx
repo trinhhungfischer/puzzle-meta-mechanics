@@ -13,17 +13,28 @@ export default async function GenresPublicPage() {
 
   return (
     <PublicLayout>
-      <div className="relative mb-16 rounded-3xl overflow-hidden glass-panel p-12 text-center flex flex-col items-center justify-center border-white/5">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-fuchsia/10 via-zinc-950 to-brand-cyan/10 z-0" />
-        <div className="absolute top-0 left-0 w-96 h-96 bg-brand-cyan/20 rounded-full blur-[120px] -translate-y-1/2 -translate-x-1/3 pointer-events-none" />
+      <div className="relative mb-8 rounded-2xl overflow-hidden glass-panel p-6 flex flex-col sm:flex-row items-center justify-between border-white/5 gap-6">
+        <div className="absolute inset-0 bg-zinc-950/80 z-0" />
+        <div className="absolute top-0 right-1/4 w-[300px] h-[300px] bg-brand-accent/10 rounded-full blur-[100px] -translate-y-1/2 pointer-events-none mix-blend-screen" />
         
-        <div className="relative z-10 max-w-2xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 leading-tight">
-            Puzzle <br/> <span className="gradient-text">Genres</span>
-          </h1>
-          <p className="text-lg md:text-xl text-zinc-400 mb-0 leading-relaxed font-medium">
-            Browse games by their macro-taxonomy classification.
-          </p>
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="hidden sm:flex w-12 h-12 rounded-xl bg-zinc-900 border border-white/10 items-center justify-center">
+            <span className="text-xl text-brand-accent font-black">G</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight mb-1">
+              Puzzle <span className="accent-text">Genres</span>
+            </h1>
+            <p className="text-sm text-zinc-400 m-0">
+              Browse games by their macro-taxonomy classification.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative z-10 flex-shrink-0">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-accent/10 border border-brand-accent/20 text-brand-accent text-xs font-bold">
+            {genres.length} Categories
+          </div>
         </div>
       </div>
 

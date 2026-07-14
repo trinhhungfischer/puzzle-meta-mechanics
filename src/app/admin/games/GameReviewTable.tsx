@@ -21,9 +21,16 @@ type Row = {
   updatedAt: string | Date
 }
 
-// Deterministic "YYYY-MM-DD HH:mm" (UTC) so server and client render identically.
+import { formatInTimeZone } from 'date-fns-tz'
+
+const TIMEZONE = process.env.NEXT_PUBLIC_TIMEZONE || 'Asia/Ho_Chi_Minh'
+
 function fmtUpdated(v: string | Date) {
-  return new Date(v).toISOString().slice(0, 16).replace('T', ' ')
+  try {
+    return formatInTimeZone(new Date(v), TIMEZONE, 'yyyy-MM-dd HH:mm')
+  } catch (e) {
+    return new Date(v).toISOString().slice(0, 16).replace('T', ' ')
+  }
 }
 
 export default function GameReviewTable({ games }: { games: Row[] }) {

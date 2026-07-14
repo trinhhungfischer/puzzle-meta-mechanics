@@ -118,8 +118,24 @@ async function main() {
 
       await prisma.gamePlatform.upsert({
         where: { gameId_platformId: { gameId: game.id, platformId: steam.id } },
-        update: { storeUrl: `https://store.steampowered.com/app/${id}` },
-        create: { gameId: game.id, platformId: steam.id, storeUrl: `https://store.steampowered.com/app/${id}` },
+        update: { 
+          storeUrl: `https://store.steampowered.com/app/${id}`,
+          ratingScore: metrics.ratingScore,
+          reviewCount: metrics.reviewCount,
+          downloads: metrics.downloads,
+          price: metrics.price,
+          isFree: metrics.isFree,
+        },
+        create: { 
+          gameId: game.id, 
+          platformId: steam.id, 
+          storeUrl: `https://store.steampowered.com/app/${id}`,
+          ratingScore: metrics.ratingScore,
+          reviewCount: metrics.reviewCount,
+          downloads: metrics.downloads,
+          price: metrics.price,
+          isFree: metrics.isFree,
+        },
       })
 
       await prisma.crawlRecord.updateMany({

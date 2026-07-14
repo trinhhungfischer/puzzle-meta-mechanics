@@ -109,8 +109,24 @@ async function main() {
         if (!url) continue
         await prisma.gamePlatform.upsert({
           where: { gameId_platformId: { gameId: game.id, platformId: platforms[name] } },
-          update: { storeUrl: url },
-          create: { gameId: game.id, platformId: platforms[name], storeUrl: url },
+          update: { 
+            storeUrl: url,
+            ratingScore: metrics.ratingScore,
+            reviewCount: metrics.reviewCount,
+            downloads: metrics.downloads,
+            price: metrics.price,
+            isFree: metrics.isFree,
+          },
+          create: { 
+            gameId: game.id, 
+            platformId: platforms[name], 
+            storeUrl: url,
+            ratingScore: metrics.ratingScore,
+            reviewCount: metrics.reviewCount,
+            downloads: metrics.downloads,
+            price: metrics.price,
+            isFree: metrics.isFree,
+          },
         })
       }
       etl++

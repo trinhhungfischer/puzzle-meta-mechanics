@@ -59,16 +59,32 @@ export async function POST(req: Request) {
           update: {
             title: gameData.title,
             releaseYear: gameData.releaseYear || null,
+            releaseDate: gameData.releaseDate ? new Date(gameData.releaseDate) : null,
             description: gameData.description || null,
             coverUrl: gameData.coverUrl || null,
-            genres: { set: [], connect: genreConnect } // reset and connect
+            status: gameData.status || 'published',
+            ratingScore: gameData.ratingScore || null,
+            ratingCount: gameData.ratingCount || null,
+            downloads: gameData.downloads || null,
+            reviewCount: gameData.reviewCount || null,
+            price: gameData.price || null,
+            isFree: gameData.isFree || false,
+            genres: { set: [], connect: genreConnect }
           },
           create: {
             title: gameData.title,
             slug,
             releaseYear: gameData.releaseYear || null,
+            releaseDate: gameData.releaseDate ? new Date(gameData.releaseDate) : null,
             description: gameData.description || null,
             coverUrl: gameData.coverUrl || null,
+            status: gameData.status || 'published',
+            ratingScore: gameData.ratingScore || null,
+            ratingCount: gameData.ratingCount || null,
+            downloads: gameData.downloads || null,
+            reviewCount: gameData.reviewCount || null,
+            price: gameData.price || null,
+            isFree: gameData.isFree || false,
             genres: { connect: genreConnect }
           }
         })
@@ -91,7 +107,12 @@ export async function POST(req: Request) {
               data: {
                 gameId: game.id,
                 platformId: platform.id,
-                storeUrl: p.storeUrl || null
+                storeUrl: p.storeUrl || null,
+                ratingScore: p.ratingScore || null,
+                reviewCount: p.reviewCount || null,
+                downloads: p.downloads || null,
+                price: p.price || null,
+                isFree: p.isFree || false,
               }
             })
           }

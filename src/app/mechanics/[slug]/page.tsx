@@ -1,10 +1,28 @@
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { BentoBox } from '@/components/ui/BentoBox'
 import { Pill } from '@/components/ui/Pill'
 import { getCoOccurringMechanics } from '@/lib/relations'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const mechanic = await prisma.mechanic.findUnique({
+    where: { slug: resolvedParams.slug },
+    select: { name: true, description: true }
+  })
+  if (!mechanic) return {}
+  return {
+    title: `${mechanic.name} | Puzzle Meta-Mechanic`,
+    description: mechanic.description || `Browse puzzle games using the ${mechanic.name} mechanic.`,
+    openGraph: {
+      title: mechanic.name,
+      description: mechanic.description || `Browse puzzle games using the ${mechanic.name} mechanic.`,
+    }
+  }
+}
 
 export default async function MechanicDetailPage({
   params,

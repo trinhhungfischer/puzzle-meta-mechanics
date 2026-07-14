@@ -183,12 +183,12 @@ US-010 → US-005 → E04.
 
 | ID | Story | Lane | Notes |
 | --- | --- | --- | --- |
-| US-042 | Surface metrics on public pages | normal | GameCard + game detail don't show rating/downloads/price yet (only admin does). Add rating stars, download bucket, price/free badges, and platform store links prominently |
-| US-043 | SEO: metadata, Open Graph, sitemap | normal | Per-page `<title>`/description, OG images for game/mechanic/genre pages, `sitemap.xml`, `robots.txt`. Needed before any public launch |
-| US-044 | Dedupe / merge near-duplicate crawled clones | normal | The catalog has many near-identical clones ("Water Sort" ×4, "Block Puzzle" ×N). Add a merge tool (pick canonical, fold platforms/metrics) + a similarity heuristic to surface candidates |
-| US-045 | Per-platform metrics on GamePlatform | normal | US-024 follow-up: ratings/downloads differ per store (Steam ≠ Play). Move per-store values onto `GamePlatform`, keep an aggregate on `Game` for filtering. Update the crawlers + detail page |
-| US-046 | Localize timestamps to a configured timezone | tiny | Admin shows update time in UTC; show Asia/Ho_Chi_Minh (GMT+7) or a configurable zone |
-| US-047 | Admin bulk export + round-trip import of games as JSON | normal | See scope below |
+| US-042 | Surface metrics on public pages | **done** | GameCard + game detail don't show rating/downloads/price yet (only admin does). Add rating stars, download bucket, price/free badges, and platform store links prominently |
+| US-043 | SEO: metadata, Open Graph, sitemap | **done** | Per-page `<title>`/description, OG images for game/mechanic/genre pages, `sitemap.xml`, `robots.txt`. Needed before any public launch |
+| US-044 | Dedupe / merge near-duplicate crawled clones | **done** | The catalog has many near-identical clones ("Water Sort" ×4, "Block Puzzle" ×N). Add a merge tool (pick canonical, fold platforms/metrics) + a similarity heuristic to surface candidates |
+| US-045 | Per-platform metrics on GamePlatform | **done** | US-024 follow-up: ratings/downloads differ per store (Steam ≠ Play). Move per-store values onto `GamePlatform`, keep an aggregate on `Game` for filtering. Update the crawlers + detail page |
+| US-046 | Localize timestamps to a configured timezone | **done** | Admin shows update time in UTC; show Asia/Ho_Chi_Minh (GMT+7) or a configurable zone |
+| US-047 | Admin bulk export + round-trip import of games as JSON | **done** | See scope below |
 
 #### US-047 — Bulk export/import of games (JSON)
 

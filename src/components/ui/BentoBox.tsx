@@ -3,38 +3,36 @@ import React from 'react'
 type BentoBoxProps = {
   children: React.ReactNode
   header?: React.ReactNode
-  color?: 'default' | 'blue' | 'purple' | 'green' | 'yellow' | 'pink'
   className?: string
+  color?: 'default' | 'accent' | 'blue' | 'purple' | 'green' | 'yellow' | 'pink'
 }
 
-// Map logical colors to subtle gradient borders or subtle background glows
-const colorStyles = {
-  default: 'hover:border-white/20',
-  blue: 'hover:border-brand-cyan/50 hover:shadow-[0_0_30px_-10px_rgba(6,182,212,0.3)]',
-  purple: 'hover:border-brand-violet/50 hover:shadow-[0_0_30px_-10px_rgba(139,92,246,0.3)]',
-  green: 'hover:border-emerald-500/50 hover:shadow-[0_0_30px_-10px_rgba(16,185,129,0.3)]',
-  yellow: 'hover:border-yellow-500/50 hover:shadow-[0_0_30px_-10px_rgba(234,179,8,0.3)]',
-  pink: 'hover:border-brand-fuchsia/50 hover:shadow-[0_0_30px_-10px_rgba(217,70,239,0.3)]',
-}
-
-const headerColorStyles = {
-  default: 'text-zinc-100 border-white/10',
-  blue: 'text-brand-cyan border-brand-cyan/20',
-  purple: 'text-brand-violet border-brand-violet/20',
-  green: 'text-emerald-400 border-emerald-500/20',
-  yellow: 'text-yellow-400 border-yellow-500/20',
-  pink: 'text-brand-fuchsia border-brand-fuchsia/20',
-}
-
-export function BentoBox({ children, header, color = 'default', className = '' }: BentoBoxProps) {
+export function BentoBox({ children, header, className = '', color = 'default' }: BentoBoxProps) {
+  // Map legacy colors to the new constrained aesthetic
+  const isAccent = color === 'accent' || color === 'blue' || color === 'purple' || color === 'green' || color === 'pink'
   return (
-    <div className={`glass-panel rounded-2xl p-6 transition-all duration-300 ${colorStyles[color]} ${className}`}>
-      {header && (
-        <div className={`text-lg font-semibold tracking-wide border-b pb-3 mb-4 ${headerColorStyles[color]}`}>
-          {header}
-        </div>
-      )}
-      {children}
+    <div className={`glass-panel rounded-[2rem] p-8 transition-all duration-300 relative overflow-hidden group ${
+      isAccent ? 'hover:border-brand-accent/50 hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.4)]' : 'hover:border-white/20'
+    } ${className}`}>
+      
+      {/* Refraction edge */}
+      <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] pointer-events-none rounded-[2rem]" />
+      
+      {/* Subtle hover fill */}
+      <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${
+        isAccent ? 'bg-brand-accent/5 mix-blend-screen' : 'bg-white/5'
+      }`} />
+
+      <div className="relative z-10">
+        {header && (
+          <div className={`text-xl font-bold tracking-tight pb-4 mb-6 border-b ${
+            isAccent ? 'text-brand-accent border-brand-accent/20' : 'text-zinc-100 border-white/5'
+          }`}>
+            {header}
+          </div>
+        )}
+        {children}
+      </div>
     </div>
   )
 }

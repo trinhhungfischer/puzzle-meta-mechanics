@@ -123,6 +123,12 @@ model GamePlatform {
   gameId     String
   platformId String
   storeUrl   String?
+  ratingScore   Float?
+  ratingCount   Int?
+  downloads     Int?
+  reviewCount   Int?
+  price         Float?
+  isFree        Boolean   @default(false)
   game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())

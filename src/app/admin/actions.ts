@@ -276,3 +276,61 @@ export async function updateGameWithRelations(id: string, data: GameInput) {
   revalidatePath('/admin/games')
   revalidatePath(`/games/${slugify(title)}`)
 }
+
+export async function mergeDuplicateGames(canonicalId: string, duplicateIds: string[]) {
+  if (duplicateIds.length === 0) return
+
+  const duplicates = await prisma.game.findMany({
+    where: { id: { in: duplicateIds } },
+    include: { genres: true, platforms: true, mechanics: true }
+  })
+
+  const canonical = await prisma.game.findUnique({
+    where: { id: canonicalId },
+    include: { genres: true, platforms: true, mechanics: true }
+  })
+  if (!canonical) return
+
+  const genreIds = new Set(canonical.genres.map(g => g.id))
+  duplicates.forEach(d => d.genres.forEach(g => genreIds.add(g.id)))
+
+  const platformIds = new Set(canonical.platforms.map(p => p.platformId))
+  const newPlatforms: { platformId: string; storeUrl: string | null }[] = []
+  duplicates.forEach(d => d.platforms.forEach(p => {
+    if (!platformIds.has(p.platformId)) {
+      platformIds.add(p.platformId)
+      newPlatforms.push({ platformId: p.platformId, storeUrl: p.storeUrl })
+    }
+  }))
+
+  const mechanicIds = new Set(canonical.mechanics.map(m => m.mechanicId))
+  const newMechanics: { mechanicId: string; role: string; note: string | null }[] = []
+  duplicates.forEach(d => d.mechanics.forEach(m => {
+    if (!mechanicIds.has(m.mechanicId)) {
+      mechanicIds.add(m.mechanicId)
+      newMechanics.push({ mechanicId: m.mechanicId, role: m.role, note: m.note })
+    }
+  }))
+
+  await prisma.game.update({
+    where: { id: canonicalId },
+    data: {
+      genres: { connect: Array.from(genreIds).map(id => ({ id })) },
+      platforms: { create: newPlatforms },
+      mechanics: { create: newMechanics },
+      // Update metrics if missing
+      ratingScore: canonical.ratingScore ?? duplicates.find(d => d.ratingScore)?.ratingScore ?? null,
+      downloads: canonical.downloads ?? duplicates.find(d => d.downloads)?.downloads ?? null,
+      price: canonical.price ?? duplicates.find(d => d.price)?.price ?? null,
+      coverUrl: canonical.coverUrl ?? duplicates.find(d => d.coverUrl)?.coverUrl ?? null,
+      description: canonical.description ?? duplicates.find(d => d.description)?.description ?? null,
+    }
+  })
+
+  await prisma.game.deleteMany({
+    where: { id: { in: duplicateIds } }
+  })
+
+  revalidatePath('/admin/games')
+  revalidatePath('/admin/dedupe')
+}

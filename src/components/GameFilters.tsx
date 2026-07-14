@@ -180,7 +180,7 @@ export default function GameFilters({
   ]
 
   return (
-    <BentoBox color="blue" header="Filters" className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
+    <BentoBox color="accent" header="Filters" className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
       <div className="mb-4">
         <label className="block text-sm font-bold mb-2 text-zinc-300">Search Games</label>
         <input 
@@ -188,7 +188,7 @@ export default function GameFilters({
           placeholder="Game title..." 
           value={localQ}
           onChange={(e) => setLocalQ(e.target.value)}
-          className="w-full bg-zinc-900/80 border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-violet/50"
+          className="w-full bg-zinc-900/80 border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-accent/50"
         />
       </div>
 
@@ -213,13 +213,13 @@ export default function GameFilters({
           <div className="flex bg-black/40 rounded-lg p-0.5 border border-white/5">
             <button 
               onClick={() => handleMechanicMode('AND')}
-              className={`px-2 py-0.5 text-xs rounded-md transition-colors ${localMechanicMode === 'AND' ? 'bg-brand-violet text-white font-bold shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`px-2 py-0.5 text-xs rounded-md transition-colors ${localMechanicMode === 'AND' ? 'bg-brand-accent text-white font-bold shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               AND
             </button>
             <button 
               onClick={() => handleMechanicMode('OR')}
-              className={`px-2 py-0.5 text-xs rounded-md transition-colors ${localMechanicMode === 'OR' ? 'bg-brand-violet text-white font-bold shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`px-2 py-0.5 text-xs rounded-md transition-colors ${localMechanicMode === 'OR' ? 'bg-brand-accent text-white font-bold shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               OR
             </button>
@@ -269,7 +269,7 @@ export default function GameFilters({
 
       <div className="mb-4 pt-4 border-t border-white/10">
         <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-zinc-300">
-          <input type="checkbox" checked={localFreeOnly} onChange={(e) => handleFreeOnlyChange(e.target.checked)} className="w-4 h-4 accent-brand-violet" />
+          <input type="checkbox" checked={localFreeOnly} onChange={(e) => handleFreeOnlyChange(e.target.checked)} className="w-4 h-4 accent-brand-accent" />
           Free games only
         </label>
       </div>
@@ -309,13 +309,13 @@ function RangeFilter({
         <input
           type="number" min="0" step={step} placeholder="Min" value={min}
           onChange={(e) => onMinChange(e.target.value)}
-          className="w-full bg-zinc-900/80 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-violet/50"
+          className="w-full bg-zinc-900/80 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-accent/50"
         />
         <span className="text-zinc-600">-</span>
         <input
           type="number" min="0" step={step} placeholder="Max" value={max}
           onChange={(e) => onMaxChange(e.target.value)}
-          className="w-full bg-zinc-900/80 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-violet/50"
+          className="w-full bg-zinc-900/80 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-accent/50"
         />
       </div>
     </div>
