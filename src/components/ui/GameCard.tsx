@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Pill } from './Pill'
 import { PlatformIcon } from './PlatformIcon'
@@ -12,6 +13,10 @@ type GameCardProps = {
     genres?: { id: string; name: string }[]
     mechanics?: { mechanicId: string; mechanic?: { id: string; name: string }, role: string }[]
     platforms?: { platformId: string; platform: { id: string; name: string } }[]
+    ratingScore?: number | null
+    downloads?: number | null
+    isFree?: boolean
+    price?: number | null
   }
 }
 
@@ -23,10 +28,12 @@ export function GameCard({ game }: GameCardProps) {
         {/* Cover */}
         <div className="relative h-[200px] w-full overflow-hidden border-b border-white/5 bg-zinc-900">
           {game.coverUrl ? (
-            <img 
+            <Image 
               src={game.coverUrl} 
               alt={`${game.title} cover`} 
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand-cyan/20 to-brand-violet/20">

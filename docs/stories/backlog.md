@@ -174,10 +174,10 @@ US-010 → US-005 → E04.
 
 | ID | Story | Lane | Notes |
 | --- | --- | --- | --- |
-| US-038 | Optimize cover images with next/image | normal | Cards render raw `<img>` of full-res Steam/Play covers — heavy. Move to `next/image` (lazy-load, resize, AVIF/WebP, blur placeholder). Configure remote image domains. Biggest perceived-speed win on the index |
-| US-039 | Paginate genre detail + mechanic "games using" lists | normal | Same problem the home index had: genre "Puzzle" (~240 games) and popular mechanics (~40-50 games) render every card at once. Reuse the 24/page pattern |
-| US-040 | Trim over-fetching + add query indexes + cache index | normal | GameCard only needs a few mechanics but the query loads all; select/limit them. Add/verify indexes for the common filter+sort paths. Consider ISR/`revalidate` on the read-mostly index |
-| US-041 | Loading skeletons + Suspense streaming | tiny | Add skeleton placeholders and stream the games grid via Suspense so filters/nav feel instant instead of blocking on the DB round-trip (cross-region latency) |
+| US-038 | Optimize cover images (`next/image`) | **done** | Currently `GameCard` uses standard `<img>` pointing to Steam CDN, which is heavy. Whitelist domains in `next.config.ts` and use `<Image>` with proper `sizes` to save bandwidth |
+| US-039 | Paginate genre detail + mechanic detail | **done** | The `/genres/[slug]` and `/mechanics/[slug]` pages currently fetch *all* games matching that tag at once. Add standard `?page=N` pagination to avoid locking up on big genres (e.g., Match-3) |
+| US-040 | Trim over-fetching + add query indexes | **done** | The main index query `include`s too much deep relational data just to render cards. Swap to `select: { ... }` fetching only the exact scalar fields needed. Ensure Postgres indexes exist for sorting columns (rating, downloads) |
+| US-041 | Loading skeletons + Suspense streaming | **done** | Instead of blocking the whole route while `prisma.game.findMany` runs, wrap the game grid in `<Suspense fallback={<GameGridSkeleton />}>`. The sidebar taxonomy is cached and renders instantly |
 
 ### E11 Platform improvements (new — 2026-07-14)
 
