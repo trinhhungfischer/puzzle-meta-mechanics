@@ -7,7 +7,10 @@ import prisma from './prisma'
 // (the DB is cross-region, so each avoided round-trip is ~100-280ms).
 
 export const getGenres = unstable_cache(
-  () => prisma.genre.findMany({ orderBy: { name: 'asc' } }),
+  () => prisma.genre.findMany({ 
+    orderBy: { name: 'asc' },
+    include: { _count: { select: { games: { where: { status: 'published' } } } } }
+  }),
   ['taxonomy:genres'],
   // Also time-box the cache so crawler-added genres/platforms (which bypass the
   // admin mutations that call revalidateTag) show up within a few minutes.
@@ -15,7 +18,10 @@ export const getGenres = unstable_cache(
 )
 
 export const getPlatforms = unstable_cache(
-  () => prisma.platform.findMany({ orderBy: { name: 'asc' } }),
+  () => prisma.platform.findMany({ 
+    orderBy: { name: 'asc' },
+    include: { _count: { select: { games: { where: { game: { status: 'published' } } } } } }
+  }),
   ['taxonomy:platforms'],
   // Also time-box the cache so crawler-added genres/platforms (which bypass the
   // admin mutations that call revalidateTag) show up within a few minutes.
@@ -23,7 +29,10 @@ export const getPlatforms = unstable_cache(
 )
 
 export const getMechanicsList = unstable_cache(
-  () => prisma.mechanic.findMany({ orderBy: { name: 'asc' } }),
+  () => prisma.mechanic.findMany({ 
+    orderBy: { name: 'asc' },
+    include: { _count: { select: { games: { where: { game: { status: 'published' } } } } } }
+  }),
   ['taxonomy:mechanics'],
   // Also time-box the cache so crawler-added genres/platforms (which bypass the
   // admin mutations that call revalidateTag) show up within a few minutes.
@@ -31,7 +40,17 @@ export const getMechanicsList = unstable_cache(
 )
 
 export const getMechanicGroups = unstable_cache(
-  () => prisma.mechanicGroup.findMany({ orderBy: { name: 'asc' } }),
+  () => prisma.mechanicGroup.findMany({ 
+    orderBy: { name: 'asc' },
+    include: {
+      mechanics: {
+        include: { _count: { select: { games: { where: { game: { status: 'published' } } } } } }
+      }
+    }
+  }).then(groups => groups.map(g => ({
+    ...g,
+    _count: { games: g.mechanics.reduce((sum, m) => sum + m._count.games, 0) }
+  }))),
   ['taxonomy:mechanic_groups'],
   { tags: ['taxonomy'], revalidate: 300 },
 )

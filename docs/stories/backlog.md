@@ -168,7 +168,7 @@ US-010 → US-005 → E04.
 | US-034 | Filter games by MechanicGroup (systemic category) | **done** | Add a group-level facet on the games index alongside individual mechanics (the 10 groups: Manipulation, Constraints, Goals…). Lets users browse "all Sorting-style games" without picking every atomic mechanic |
 | US-035 | Numeric range filters + mechanic AND/OR toggle | **done** | Games index: min/max for rating, downloads, price, release year; a free/paid toggle already exists. Add an AND vs OR mode for the mechanic multiselect (currently AND-only) |
 | US-036 | Mechanic groups landing page + richer mechanics index | **done** | A `/mechanics` (or `/groups`) overview that browses the 10 groups; per-group mechanic lists; sort mechanics by usage-count or alphabetically; filter the index by group |
-| US-037 | Faceted filter counts | normal | Show result counts next to each genre/platform/mechanic filter option ("Match-3 (42)") so users see what's populated. Derived counts, cache-friendly |
+| US-037 | Faceted filter counts | **done** | Show result counts next to each genre/platform/mechanic filter option ("Match-3 (42)") so users see what's populated. Derived counts, cache-friendly |
 
 ### E10 Performance (new — 2026-07-14)
 

@@ -165,12 +165,12 @@ export default function GameFilters({
     updateFilters({ freeOnly: val })
   }
 
-  const genreOptions = genres.map(g => ({ label: g.name, value: g.slug }))
+  const genreOptions = genres.map(g => ({ label: g._count ? `${g.name} (${g._count.games})` : g.name, value: g.slug }))
   const platformOptions = platforms.map(p => ({ 
-    label: p.name, value: p.slug, icon: <PlatformIcon name={p.name} className="w-4 h-4" />
+    label: p._count ? `${p.name} (${p._count.games})` : p.name, value: p.slug, icon: <PlatformIcon name={p.name} className="w-4 h-4" />
   }))
-  const groupOptions = groups.map(g => ({ label: g.name, value: g.slug }))
-  const mechanicOptions = mechanics.map(m => ({ label: m.name, value: m.slug }))
+  const groupOptions = groups.map(g => ({ label: g._count ? `${g.name} (${g._count.games})` : g.name, value: g.slug }))
+  const mechanicOptions = mechanics.map(m => ({ label: m._count ? `${m.name} (${m._count.games})` : m.name, value: m.slug }))
   const sortOptions = [
     { label: 'Title (A-Z)', value: 'title' },
     { label: 'Rating (high → low)', value: 'rating' },
