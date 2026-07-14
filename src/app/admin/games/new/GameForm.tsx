@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createGameWithRelations, updateGameWithRelations } from '../../actions'
 import { BentoBox } from '@/components/ui/BentoBox'
 import { Button } from '@/components/ui/Button'
@@ -14,18 +15,27 @@ type Props = {
   initialData?: any
 }
 
+const initGenres = (d: any): string[] => (d ? d.genres.map((g: any) => g.id) : [])
+const initPlatforms = (d: any) => (d ? d.platforms.map((p: any) => ({ platformId: p.platformId, storeUrl: p.storeUrl || '' })) : [])
+const initMechanics = (d: any) => (d ? d.mechanics.map((m: any) => ({ mechanicId: m.mechanicId, role: m.role, note: m.note || '' })) : [])
+
 export default function GameForm({ genres, platforms, mechanics, initialData }: Props) {
   const router = useRouter()
-  
-  const [selectedGenres, setSelectedGenres] = useState<string[]>(
-    initialData ? initialData.genres.map((g: any) => g.id) : []
-  )
-  const [selectedPlatforms, setSelectedPlatforms] = useState<{ platformId: string; storeUrl: string }[]>(
-    initialData ? initialData.platforms.map((p: any) => ({ platformId: p.platformId, storeUrl: p.storeUrl || '' })) : []
-  )
-  const [selectedMechanics, setSelectedMechanics] = useState<{ mechanicId: string; role: string; note: string }[]>(
-    initialData ? initialData.mechanics.map((m: any) => ({ mechanicId: m.mechanicId, role: m.role, note: m.note || '' })) : []
-  )
+  const formRef = useRef<HTMLFormElement>(null)
+
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(initGenres(initialData))
+  const [selectedPlatforms, setSelectedPlatforms] = useState<{ platformId: string; storeUrl: string }[]>(initPlatforms(initialData))
+  const [selectedMechanics, setSelectedMechanics] = useState<{ mechanicId: string; role: string; note: string }[]>(initMechanics(initialData))
+
+  // Revert every field (controlled state + uncontrolled inputs) back to the
+  // values the form loaded with.
+  const discardChanges = () => {
+    if (!confirm('Discard all unsaved changes?')) return
+    setSelectedGenres(initGenres(initialData))
+    setSelectedPlatforms(initPlatforms(initialData))
+    setSelectedMechanics(initMechanics(initialData))
+    formRef.current?.reset()
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -72,7 +82,11 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
   ]
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+    <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-8">
+      <Link href="/admin/games" className="inline-flex items-center gap-2 text-blue-solid font-bold uppercase tracking-wider text-sm hover:underline self-start">
+        <span>&larr;</span> Back to Games
+      </Link>
+
       {/* Basic Info */}
       <BentoBox color="yellow" header="Basic Info">
         <div className="flex flex-wrap gap-4 mb-4">
@@ -220,9 +234,26 @@ export default function GameForm({ genres, platforms, mechanics, initialData }: 
         </div>
       </BentoBox>
 
-      <Button type="submit" variant="primary" className="self-start text-lg px-8 py-3">
-        {initialData ? 'Save Changes' : 'Create Game'}
-      </Button>
+      <div className="flex flex-wrap items-center gap-4">
+        <Button type="submit" variant="primary" className="text-lg px-8 py-3">
+          {initialData ? 'Save Changes' : 'Create Game'}
+        </Button>
+        {initialData && (
+          <button
+            type="button"
+            onClick={discardChanges}
+            className="px-6 py-3 font-bold uppercase tracking-wider border-2 border-outline hover:bg-outline hover:text-box transition-colors"
+          >
+            Discard Changes
+          </button>
+        )}
+        <Link
+          href="/admin/games"
+          className="px-6 py-3 font-bold uppercase tracking-wider text-zinc-400 hover:text-white transition-colors"
+        >
+          Back to Games
+        </Link>
+      </div>
     </form>
   )
 }

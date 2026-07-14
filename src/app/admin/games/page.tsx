@@ -35,7 +35,11 @@ export default async function GamesAdminPage({
       orderBy: [{ status: 'asc' }, { reviewCount: 'desc' }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { genres: true, platforms: { include: { platform: true } } },
+      include: {
+        genres: true,
+        platforms: { include: { platform: true } },
+        mechanics: { include: { mechanic: true } },
+      },
     }),
     getPlatforms(),
     getGenres(),

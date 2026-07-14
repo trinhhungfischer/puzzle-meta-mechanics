@@ -17,6 +17,7 @@ type Row = {
   downloads: number | null
   genres: { id: string; name: string }[]
   platforms: { id: string; platform: { name: string } }[]
+  mechanics: { id: string; role: string; mechanic: { name: string } }[]
 }
 
 export default function GameReviewTable({ games }: { games: Row[] }) {
@@ -100,6 +101,21 @@ export default function GameReviewTable({ games }: { games: Row[] }) {
                   {g.platforms.map(p => <span key={p.id} className="uppercase">{p.platform.name}</span>)}
                   {g.genres.slice(0, 3).map(gn => <span key={gn.id} className="text-brand-fuchsia">{gn.name}</span>)}
                 </div>
+                {g.mechanics.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    {[...g.mechanics]
+                      .sort((a, b) => (a.role === 'core' ? 0 : 1) - (b.role === 'core' ? 0 : 1))
+                      .slice(0, 3)
+                      .map(m => (
+                        <Pill key={m.id} color={m.role === 'core' ? 'default' : 'purple'} className="!text-[0.6rem]">
+                          {m.mechanic.name.split(':')[0]}
+                        </Pill>
+                      ))}
+                    {g.mechanics.length > 3 && (
+                      <span className="text-[0.6rem] font-bold opacity-60">+{g.mechanics.length - 3}</span>
+                    )}
+                  </div>
+                )}
               </div>
               <Link href={`/admin/games/${g.id}`} className="text-sm font-bold uppercase text-blue-solid hover:underline flex-shrink-0">
                 Edit
