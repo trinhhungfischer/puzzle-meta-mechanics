@@ -18,7 +18,16 @@ export default async function MechanicsPublicPage({
         where: q ? { name: { contains: q } } : undefined,
         orderBy: { name: 'asc' },
         include: {
-          _count: { select: { games: true } }
+          _count: { select: { games: true } },
+          games: {
+            take: 4,
+            where: { game: { status: 'published' } },
+            select: {
+              game: {
+                select: { title: true, coverUrl: true }
+              }
+            }
+          }
         }
       }
     }

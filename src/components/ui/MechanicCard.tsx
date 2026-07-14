@@ -7,7 +7,7 @@ type MechanicCardProps = {
     slug: string
     name: string
     description?: string | null
-    games?: { gameId: string }[]
+    games?: { game: { title: string, coverUrl: string | null } }[]
     _count?: { games: number }
   }
 }
@@ -34,9 +34,24 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
           <div className="flex-grow mb-6 z-10" />
         )}
         
-        <div className="mt-auto pt-4 border-t border-white/5 text-xs font-medium text-zinc-500 z-10 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-brand-violet/50" />
-          Used in {gameCount} game{gameCount !== 1 ? 's' : ''}
+        <div className="mt-auto pt-4 border-t border-white/5 z-10 flex items-center gap-3">
+          {mechanic.games && mechanic.games.length > 0 && (
+            <div className="flex -space-x-2">
+              {mechanic.games.map((gm, i) => (
+                gm.game.coverUrl ? (
+                  <img key={i} src={gm.game.coverUrl} title={gm.game.title} className="w-6 h-6 rounded-full border border-zinc-900 object-cover" />
+                ) : (
+                  <div key={i} title={gm.game.title} className="w-6 h-6 rounded-full border border-zinc-900 bg-brand-violet/50 flex items-center justify-center text-[10px] font-bold text-white uppercase">
+                    {gm.game.title.charAt(0)}
+                  </div>
+                )
+              ))}
+            </div>
+          )}
+          <div className="text-xs font-medium text-zinc-500 flex items-center gap-2">
+            {(!mechanic.games || mechanic.games.length === 0) && <span className="w-1.5 h-1.5 rounded-full bg-brand-violet/50" />}
+            Used in {gameCount} game{gameCount !== 1 ? 's' : ''}
+          </div>
         </div>
 
       </div>
