@@ -188,6 +188,34 @@ US-010 → US-005 → E04.
 | US-044 | Dedupe / merge near-duplicate crawled clones | normal | The catalog has many near-identical clones ("Water Sort" ×4, "Block Puzzle" ×N). Add a merge tool (pick canonical, fold platforms/metrics) + a similarity heuristic to surface candidates |
 | US-045 | Per-platform metrics on GamePlatform | normal | US-024 follow-up: ratings/downloads differ per store (Steam ≠ Play). Move per-store values onto `GamePlatform`, keep an aggregate on `Game` for filtering. Update the crawlers + detail page |
 | US-046 | Localize timestamps to a configured timezone | tiny | Admin shows update time in UTC; show Asia/Ho_Chi_Minh (GMT+7) or a configurable zone |
+| US-047 | Admin bulk export + round-trip import of games as JSON | normal | See scope below |
+
+#### US-047 — Bulk export/import of games (JSON)
+
+**Goal.** Let an admin export the whole catalog (or a filtered subset) to a
+single JSON file and re-import it, so large batches can be backed up, edited
+offline, or moved between environments.
+
+Extends the existing import (US-005 / US-017 at `/admin/import`), which only
+takes a simpler shape and dumps unknown mechanics into "Uncategorized".
+
+**Export:**
+- Download a JSON array of games with full relations: `title`, `slug`,
+  `description`, `coverUrl`, `releaseYear/Date`, all metrics (rating, downloads,
+  price, isFree…), `status`, `genres`, `platforms` (name + `storeUrl`),
+  `mechanics` (code/slug + `role` + `note`).
+- Respect the current admin filters (export the filtered set) or export all.
+
+**Import (round-trips the export shape):**
+- Upsert by `slug`; preserve mechanic `role`/`note`, platform `storeUrl`,
+  metrics and `status`.
+- Resolve mechanics by code/slug (don't force "Uncategorized" when a match
+  exists); report unmatched mechanics/genres/platforms.
+- Keep the US-017 dry-run: show a create/update/skip summary before committing;
+  handle large payloads (hundreds+ of games) in batches.
+
+**Done when:** export → edit → import round-trips a large set without data loss
+(relations, metrics, status all preserved), with a dry-run report first.
 
 ### E07 Scale & data enrichment (new — 2026-07-13)
 
