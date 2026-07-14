@@ -24,7 +24,8 @@ import {
 } from '../src/lib/crawler/steam'
 
 const prisma = new PrismaClient()
-const STEAM_DELAY_MS = 1500 // be polite to Steam's rate limit
+const STEAM_DELAY_MS = Number(process.env.STEAM_DELAY_MS ?? 1300) // politeness between requests
+const MAX_MS = Number(process.env.CRAWL_MAX_MS ?? 14 * 60 * 1000) // wall-clock budget (default 14 min)
 
 async function stage(source: string, sourceId: string, kind: string, payload: any, error?: string) {
   await prisma.crawlRecord.upsert({
@@ -57,8 +58,13 @@ async function main() {
     create: { name: 'PC/Steam', slug: slugify('PC/Steam') },
   })
 
+  const startedAt = Date.now()
   let etlCount = 0
   for (const app of apps) {
+    if (Date.now() - startedAt > MAX_MS) {
+      console.log(`\nTime budget (${Math.round(MAX_MS / 60000)} min) reached — stopping.`)
+      break
+    }
     const id = app.appid
     try {
       // 2. Fetch + stage raw

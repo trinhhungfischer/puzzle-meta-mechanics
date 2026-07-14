@@ -165,6 +165,21 @@ export async function setGameStatus(id: string, status: 'draft' | 'published') {
   revalidatePath(`/games/${game.slug}`)
 }
 
+// Bulk review actions for the crawl queue.
+export async function bulkSetGameStatus(ids: string[], status: 'draft' | 'published') {
+  if (ids.length === 0) return
+  await prisma.game.updateMany({ where: { id: { in: ids } }, data: { status } })
+  revalidatePath('/admin/games')
+  revalidatePath('/')
+}
+
+export async function bulkDeleteGames(ids: string[]) {
+  if (ids.length === 0) return
+  await prisma.game.deleteMany({ where: { id: { in: ids } } })
+  revalidatePath('/admin/games')
+  revalidatePath('/')
+}
+
 // Metric fields shared by create/update. All optional; blank inputs stay null.
 type GameMetrics = {
   ratingScore: number | null;

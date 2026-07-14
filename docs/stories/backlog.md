@@ -183,6 +183,24 @@ Follow-ups (own stories when picked up):
   limits; record ToS considerations.
 - **Trigger surface:** an `/admin` button or scheduled job instead of a manual script.
 - **More sources:** App Store / Google Play for mobile puzzle games.
+  ✅ **Shipped (US-030):** iOS via iTunes Search API + Android via
+  google-play-scraper, merged by title into one Game with both store links;
+  Android supplies real install counts. `npm run crawl:mobile`.
+
+#### US-030 — Mobile crawler + bulk admin review
+
+- iOS: `src/lib/crawler/appstore.ts` (iTunes Search API, rich metadata in one call).
+- Android: `src/lib/crawler/googleplay.ts` (google-play-scraper; install counts → `downloads`).
+- `scripts/crawl-mobile.ts` merges iOS+Android by slug → one draft Game, both
+  platform links. Crawled ~258 games (20 on both platforms).
+- Admin review console (`/admin/games`): status tabs (draft/published/all +
+  counts), platform/genre/search filters, 50/page pagination, and a
+  select-many table with bulk Publish / Unpublish / Delete.
+- Cache: taxonomy lists get `revalidate: 300` so crawler-added genres/platforms
+  surface without an admin edit.
+
+Open: crawlers bypass `revalidateTag('taxonomy')` (they're scripts) — the 5-min
+time-box covers it; a manual "refresh caches" admin action could make it instant.
 | US-027 | Migrate SQLite → Postgres as system of record | **done** | Supabase (ap-south-1) via **session pooler** — direct host is IPv6-only/unreachable. Data migrated preserving ids; verified e2e. `.env` gitignored |
 | US-026 | Raw-crawl staging store (Postgres JSONB, or MongoDB if kept separate) | high-risk | Reframed after advice: NoSQL is NOT the primary DB. Staging only, ETL into Postgres. Do only if crawl payloads are messy enough to warrant it |
 

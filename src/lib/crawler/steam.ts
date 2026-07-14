@@ -32,6 +32,26 @@ const UA = { 'User-Agent': 'puzzle-meta-mechanic-crawler/0.1' }
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
 
+/**
+ * fetch with retry/backoff on rate limits (429) and transient 5xx. Steam
+ * throttles appdetails to roughly 200 requests / 5 min, so a long run needs to
+ * ride out 429s rather than drop the game.
+ */
+async function fetchRetry(url: string, headers: Record<string, string>, tries = 3): Promise<Response> {
+  let lastStatus = 0
+  for (let i = 0; i < tries; i++) {
+    const res = await fetch(url, { headers })
+    if (res.ok) return res
+    lastStatus = res.status
+    if (res.status === 429 || res.status >= 500) {
+      await sleep(10000 * (i + 1)) // 10s, 20s, 30s backoff
+      continue
+    }
+    return res // non-retryable (e.g. 404) — let caller handle
+  }
+  throw new Error(`rate-limited after ${tries} tries (last ${lastStatus})`)
+}
+
 /** Lower bound of a SteamSpy owners range string → integer (downloads proxy). */
 export function parseOwnersLowerBound(owners?: string): number | null {
   if (!owners) return null
@@ -64,11 +84,11 @@ export async function discoverPuzzleApps(limit: number): Promise<SteamSpyApp[]> 
   const ids: number[] = []
   const seen = new Set<number>()
   const pageSize = 50
-  for (let start = 0; ids.length < limit && start < 500; start += pageSize) {
+  for (let start = 0; ids.length < limit && start < 2000; start += pageSize) {
     const url =
       `https://store.steampowered.com/search/results/?query&start=${start}&count=${pageSize}` +
       `&tags=${PUZZLE_TAG}&category1=998&filter=topsellers&supportedlang=english&infinite=1`
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+    const res = await fetchRetry(url, { 'User-Agent': 'Mozilla/5.0' })
     if (!res.ok) throw new Error(`Steam search failed: ${res.status}`)
     const json = (await res.json()) as { results_html?: string; total_count?: number }
     const html = json.results_html ?? ''
@@ -83,9 +103,9 @@ export async function discoverPuzzleApps(limit: number): Promise<SteamSpyApp[]> 
 }
 
 export async function fetchAppDetails(appid: number): Promise<AppDetails | null> {
-  const res = await fetch(
+  const res = await fetchRetry(
     `https://store.steampowered.com/api/appdetails?appids=${appid}&cc=us&l=english`,
-    { headers: UA },
+    UA,
   )
   if (!res.ok) throw new Error(`appdetails ${appid} failed: ${res.status}`)
   const json = (await res.json()) as Record<string, { success: boolean; data?: AppDetails }>
@@ -94,9 +114,9 @@ export async function fetchAppDetails(appid: number): Promise<AppDetails | null>
 }
 
 export async function fetchReviewSummary(appid: number): Promise<ReviewSummary | null> {
-  const res = await fetch(
+  const res = await fetchRetry(
     `https://store.steampowered.com/appreviews/${appid}?json=1&language=all&purchase_type=all&num_per_page=0`,
-    { headers: UA },
+    UA,
   )
   if (!res.ok) throw new Error(`appreviews ${appid} failed: ${res.status}`)
   const json = (await res.json()) as { success: number; query_summary?: ReviewSummary }

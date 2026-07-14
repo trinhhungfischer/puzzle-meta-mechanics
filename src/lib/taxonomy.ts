@@ -9,17 +9,23 @@ import prisma from './prisma'
 export const getGenres = unstable_cache(
   () => prisma.genre.findMany({ orderBy: { name: 'asc' } }),
   ['taxonomy:genres'],
-  { tags: ['taxonomy'] },
+  // Also time-box the cache so crawler-added genres/platforms (which bypass the
+  // admin mutations that call revalidateTag) show up within a few minutes.
+  { tags: ['taxonomy'], revalidate: 300 },
 )
 
 export const getPlatforms = unstable_cache(
   () => prisma.platform.findMany({ orderBy: { name: 'asc' } }),
   ['taxonomy:platforms'],
-  { tags: ['taxonomy'] },
+  // Also time-box the cache so crawler-added genres/platforms (which bypass the
+  // admin mutations that call revalidateTag) show up within a few minutes.
+  { tags: ['taxonomy'], revalidate: 300 },
 )
 
 export const getMechanicsList = unstable_cache(
   () => prisma.mechanic.findMany({ orderBy: { name: 'asc' } }),
   ['taxonomy:mechanics'],
-  { tags: ['taxonomy'] },
+  // Also time-box the cache so crawler-added genres/platforms (which bypass the
+  // admin mutations that call revalidateTag) show up within a few minutes.
+  { tags: ['taxonomy'], revalidate: 300 },
 )
