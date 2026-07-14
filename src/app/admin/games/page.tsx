@@ -17,6 +17,7 @@ export default async function GamesAdminPage({
   const q = str('q')
   const platform = str('platform')
   const genre = str('genre')
+  const sort = str('sort') ?? 'updated'
   const page = Math.max(1, parseInt(str('page') ?? '1', 10) || 1)
 
   const base: any = {}
@@ -25,6 +26,13 @@ export default async function GamesAdminPage({
   if (genre) base.genres = { some: { slug: genre } }
   const where = status === 'all' ? base : { ...base, status }
 
+  const orderBy: any =
+    sort === 'created' ? { createdAt: 'desc' } :
+    sort === 'reviews' ? { reviewCount: 'desc' } :
+    sort === 'rating' ? { ratingScore: 'desc' } :
+    sort === 'title' ? { title: 'asc' } :
+    { updatedAt: 'desc' } // default: most recently updated first
+
   const [total, draftCount, publishedCount, allCount, games, platforms, genres] = await Promise.all([
     prisma.game.count({ where }),
     prisma.game.count({ where: { ...base, status: 'draft' } }),
@@ -32,7 +40,7 @@ export default async function GamesAdminPage({
     prisma.game.count({ where: base }),
     prisma.game.findMany({
       where,
-      orderBy: [{ status: 'asc' }, { reviewCount: 'desc' }],
+      orderBy,
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
       include: {
@@ -48,7 +56,7 @@ export default async function GamesAdminPage({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const qs = (o: Record<string, string | number | undefined>) => {
     const p = new URLSearchParams()
-    const merged = { status, q, platform, genre, page, ...o }
+    const merged = { status, q, platform, genre, sort, page, ...o }
     for (const [k, v] of Object.entries(merged)) {
       if (v !== undefined && v !== '' && !(k === 'page' && v === 1)) p.set(k, String(v))
     }
@@ -102,6 +110,16 @@ export default async function GamesAdminPage({
           <select name="genre" defaultValue={genre ?? ''} className="!mb-0">
             <option value="">Any</option>
             {genres.map(g => <option key={g.id} value={g.slug}>{g.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-bold uppercase mb-1 opacity-70">Sort</label>
+          <select name="sort" defaultValue={sort} className="!mb-0">
+            <option value="updated">Recently updated</option>
+            <option value="created">Recently added</option>
+            <option value="reviews">Most reviews</option>
+            <option value="rating">Highest rating</option>
+            <option value="title">Title (A-Z)</option>
           </select>
         </div>
         <button type="submit" className="px-4 py-2 font-bold uppercase tracking-wider text-sm rounded-lg border-2 border-blue-solid text-blue-solid hover:bg-blue-solid hover:text-box transition-colors">

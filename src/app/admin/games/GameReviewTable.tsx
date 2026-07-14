@@ -18,6 +18,12 @@ type Row = {
   genres: { id: string; name: string }[]
   platforms: { id: string; platform: { name: string } }[]
   mechanics: { id: string; role: string; mechanic: { name: string } }[]
+  updatedAt: string | Date
+}
+
+// Deterministic "YYYY-MM-DD HH:mm" (UTC) so server and client render identically.
+function fmtUpdated(v: string | Date) {
+  return new Date(v).toISOString().slice(0, 16).replace('T', ' ')
 }
 
 export default function GameReviewTable({ games }: { games: Row[] }) {
@@ -100,6 +106,7 @@ export default function GameReviewTable({ games }: { games: Row[] }) {
                   {g.downloads != null && <span>{g.downloads.toLocaleString()} dl</span>}
                   {g.platforms.map(p => <span key={p.id} className="uppercase">{p.platform.name}</span>)}
                   {g.genres.slice(0, 3).map(gn => <span key={gn.id} className="text-brand-fuchsia">{gn.name}</span>)}
+                  <span className="text-zinc-500" title="last updated (UTC)">⟳ {fmtUpdated(g.updatedAt)}</span>
                 </div>
                 {g.mechanics.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
