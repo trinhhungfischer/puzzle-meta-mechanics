@@ -97,6 +97,22 @@ model GameMechanic {
   @@unique([gameId, mechanicId])
 }
 
+// Raw-crawl staging (ADR 0009): unnormalized source payloads land here first,
+// then an ETL step promotes chosen fields into Game. Never queried by the app UI.
+model CrawlRecord {
+  id          String    @id @default(cuid())
+  source      String //  "steam"
+  sourceId    String //  e.g. Steam appid
+  kind        String //  "appdetails" | "reviews" | "steamspy"
+  payload     Json //     raw response (jsonb)
+  fetchedAt   DateTime  @default(now())
+  processedAt DateTime? //  set when ETL has consumed it
+  error       String? //   ETL/fetch error, if any
+
+  @@unique([source, sourceId, kind])
+  @@index([source, processedAt])
+}
+
 model GamePlatform {
   id         String   @id @default(cuid())
   gameId     String

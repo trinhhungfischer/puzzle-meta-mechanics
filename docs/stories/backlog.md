@@ -162,7 +162,24 @@ richer per-game signals so filtering/sorting can be more precise.
 | ID | Story | Lane | Notes |
 | --- | --- | --- | --- |
 | US-024 | Add game metric fields for richer filtering/sorting | **done** | Aggregate metrics on `Game` + sort/minRating/free filters; verified e2e. Per-platform metrics deferred to crawler (US-025) |
-| US-025 | Crawler / ingestion pipeline for external game data | high-risk | Fetch store data (Steam / App Store / Google Play); needs ADR (ToS, scheduling, dedupe, source-of-truth) |
+| US-025 | Crawler / ingestion pipeline for external game data | **tracer done (Steam)** | `src/lib/crawler/steam.ts` + `scripts/crawl-steam.ts` (`npm run crawl:steam [limit] [appid…]`). Discover via Steam search (Puzzle tag), stage raw in `CrawlRecord` (JSONB, ADR 0009), ETL → Game + Genre + PC/Steam link + metrics. Verified e2e |
+
+#### US-025 — Steam crawler (tracer-bullet slice, follow-ups)
+
+Done: staging table `CrawlRecord`, Steam appdetails + appreviews fetch, Steam-search
+discovery, ETL into Game (title, description, cover, genres, price/isFree,
+releaseYear/Date, ratingScore, reviewCount, PC/Steam store link). Mechanics are
+deliberately **not** inferred — they stay curated.
+
+Follow-ups (own stories when picked up):
+- **Data quality:** the Steam "Puzzle" tag is broad (pulls in e.g. Car Mechanic
+  Sim); add stricter filtering / a manual review-and-approve gate before publish.
+- **Downloads metric:** not populated (Steam search has no owners); enrich per-app
+  from SteamSpy `appdetails` if wanted.
+- **Scheduling + incremental refresh:** re-crawl to refresh metrics; respect rate
+  limits; record ToS considerations.
+- **Trigger surface:** an `/admin` button or scheduled job instead of a manual script.
+- **More sources:** App Store / Google Play for mobile puzzle games.
 | US-027 | Migrate SQLite → Postgres as system of record | **done** | Supabase (ap-south-1) via **session pooler** — direct host is IPv6-only/unreachable. Data migrated preserving ids; verified e2e. `.env` gitignored |
 | US-026 | Raw-crawl staging store (Postgres JSONB, or MongoDB if kept separate) | high-risk | Reframed after advice: NoSQL is NOT the primary DB. Staging only, ETL into Postgres. Do only if crawl payloads are messy enough to warrant it |
 
