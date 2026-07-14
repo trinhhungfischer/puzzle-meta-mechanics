@@ -3,19 +3,29 @@ import { PublicLayout } from '@/components/layout/PublicLayout'
 import { MechanicCard } from '@/components/ui/MechanicCard'
 import { Button } from '@/components/ui/Button'
 
+import MechanicFilters from './MechanicFilters'
+
 export default async function MechanicsPublicPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string, group?: string, sort?: string }>
 }) {
   const resolvedParams = await searchParams
   const q = resolvedParams.q
+  const groupFilter = resolvedParams.group
+  const sort = resolvedParams.sort || 'alpha'
+
+  const allGroupsForFilter = await prisma.mechanicGroup.findMany({
+    orderBy: { name: 'asc' },
+    select: { name: true, slug: true }
+  })
 
   const groups = await prisma.mechanicGroup.findMany({
+    where: groupFilter ? { slug: groupFilter } : undefined,
     orderBy: { name: 'asc' },
     include: {
       mechanics: {
-        where: q ? { name: { contains: q } } : undefined,
+        where: q ? { name: { contains: q, mode: 'insensitive' } } : undefined,
         orderBy: { name: 'asc' },
         include: {
           _count: { select: { games: true } },
@@ -33,12 +43,19 @@ export default async function MechanicsPublicPage({
     }
   })
 
+  // Sort mechanics in-memory if requested (since Prisma lacks deep aggregate relation sorting)
+  if (sort === 'usage') {
+    groups.forEach(g => {
+      g.mechanics.sort((a, b) => b._count.games - a._count.games)
+    })
+  }
+
   // Filter out groups that have no mechanics matching the search
   const visibleGroups = groups.filter(g => g.mechanics.length > 0)
 
   return (
     <PublicLayout>
-      <div className="relative mb-16 rounded-3xl overflow-hidden glass-panel p-12 text-center flex flex-col items-center justify-center border-white/5">
+      <div className="relative mb-12 rounded-3xl overflow-hidden glass-panel p-12 text-center flex flex-col items-center justify-center border-white/5">
         <div className="absolute inset-0 bg-gradient-to-br from-brand-violet/10 via-zinc-950 to-brand-fuchsia/10 z-0" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-fuchsia/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
         
@@ -52,16 +69,12 @@ export default async function MechanicsPublicPage({
         </div>
       </div>
 
-      <form className="mb-12 flex flex-col sm:flex-row gap-4 max-w-2xl">
-        <input 
-          type="text" 
-          name="q" 
-          defaultValue={q} 
-          placeholder="Search mechanics by name..." 
-          className="flex-1"
-        />
-        <Button type="submit">Search</Button>
-      </form>
+      <MechanicFilters 
+        groups={allGroupsForFilter} 
+        currentQ={q} 
+        currentGroup={groupFilter} 
+        currentSort={sort} 
+      />
 
       {visibleGroups.map(group => (
         <section key={group.id} className="mb-16">
