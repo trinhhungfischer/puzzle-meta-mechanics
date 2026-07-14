@@ -161,6 +161,34 @@ US-010 → US-005 → E04.
 | US-032 | Mechanic cards show representative game icons | normal | On the mechanics index + mechanic detail, render 3-4 cover thumbnails of games using that mechanic so cards are visually scannable. Presentation-only; data already exists via GameMechanic |
 | US-033 | Google OAuth login for admin portal | high-risk | Gate `/admin` behind Google sign-in — **realizes US-012 auth**. `/admin` is currently open (CRUD + bulk delete reachable by anyone). Needs an ADR (auth boundary, session strategy) + an allowlist of permitted Google accounts. Likely NextAuth/Auth.js with the Google provider |
 
+### E09 Discovery & filtering (new — 2026-07-14)
+
+| ID | Story | Lane | Notes |
+| --- | --- | --- | --- |
+| US-034 | Filter games by MechanicGroup (systemic category) | normal | Add a group-level facet on the games index alongside individual mechanics (the 10 groups: Manipulation, Constraints, Goals…). Lets users browse "all Sorting-style games" without picking every atomic mechanic |
+| US-035 | Numeric range filters + mechanic AND/OR toggle | normal | Games index: min/max for rating, downloads, price, release year; a free/paid toggle already exists. Add an AND vs OR mode for the mechanic multiselect (currently AND-only) |
+| US-036 | Mechanic groups landing page + richer mechanics index | normal | A `/mechanics` (or `/groups`) overview that browses the 10 groups; per-group mechanic lists; sort mechanics by usage-count or alphabetically; filter the index by group |
+| US-037 | Faceted filter counts | normal | Show result counts next to each genre/platform/mechanic filter option ("Match-3 (42)") so users see what's populated. Derived counts, cache-friendly |
+
+### E10 Performance (new — 2026-07-14)
+
+| ID | Story | Lane | Notes |
+| --- | --- | --- | --- |
+| US-038 | Optimize cover images with next/image | normal | Cards render raw `<img>` of full-res Steam/Play covers — heavy. Move to `next/image` (lazy-load, resize, AVIF/WebP, blur placeholder). Configure remote image domains. Biggest perceived-speed win on the index |
+| US-039 | Paginate genre detail + mechanic "games using" lists | normal | Same problem the home index had: genre "Puzzle" (~240 games) and popular mechanics (~40-50 games) render every card at once. Reuse the 24/page pattern |
+| US-040 | Trim over-fetching + add query indexes + cache index | normal | GameCard only needs a few mechanics but the query loads all; select/limit them. Add/verify indexes for the common filter+sort paths. Consider ISR/`revalidate` on the read-mostly index |
+| US-041 | Loading skeletons + Suspense streaming | tiny | Add skeleton placeholders and stream the games grid via Suspense so filters/nav feel instant instead of blocking on the DB round-trip (cross-region latency) |
+
+### E11 Platform improvements (new — 2026-07-14)
+
+| ID | Story | Lane | Notes |
+| --- | --- | --- | --- |
+| US-042 | Surface metrics on public pages | normal | GameCard + game detail don't show rating/downloads/price yet (only admin does). Add rating stars, download bucket, price/free badges, and platform store links prominently |
+| US-043 | SEO: metadata, Open Graph, sitemap | normal | Per-page `<title>`/description, OG images for game/mechanic/genre pages, `sitemap.xml`, `robots.txt`. Needed before any public launch |
+| US-044 | Dedupe / merge near-duplicate crawled clones | normal | The catalog has many near-identical clones ("Water Sort" ×4, "Block Puzzle" ×N). Add a merge tool (pick canonical, fold platforms/metrics) + a similarity heuristic to surface candidates |
+| US-045 | Per-platform metrics on GamePlatform | normal | US-024 follow-up: ratings/downloads differ per store (Steam ≠ Play). Move per-store values onto `GamePlatform`, keep an aggregate on `Game` for filtering. Update the crawlers + detail page |
+| US-046 | Localize timestamps to a configured timezone | tiny | Admin shows update time in UTC; show Asia/Ho_Chi_Minh (GMT+7) or a configurable zone |
+
 ### E07 Scale & data enrichment (new — 2026-07-13)
 
 Goal: grow the catalog from a hand-curated set to a large crawled dataset, with
