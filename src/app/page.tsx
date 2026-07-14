@@ -1,8 +1,11 @@
 import prisma from '@/lib/prisma'
+import Link from 'next/link'
 import GameFilters from '@/components/GameFilters'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { GameCard } from '@/components/ui/GameCard'
 import { getGenres, getPlatforms, getMechanicsList } from '@/lib/taxonomy'
+
+const PAGE_SIZE = 24
 
 export default async function Home({
   searchParams,
@@ -17,6 +20,7 @@ export default async function Home({
   const minRating = Number.isFinite(minRatingRaw) && minRatingRaw > 0 ? minRatingRaw : undefined
   const freeOnly = resolvedParams.free === '1'
   const sort = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : 'title'
+  const page = Math.max(1, parseInt(typeof resolvedParams.page === 'string' ? resolvedParams.page : '1', 10) || 1)
 
   let mechanics: string[] = []
   if (typeof resolvedParams.mechanic === 'string') {
@@ -62,10 +66,13 @@ export default async function Home({
     sort === 'year' ? { releaseYear: 'desc' } :
     { title: 'asc' }
 
-  const [games, allGenres, allPlatforms, allMechanics] = await Promise.all([
+  const [total, games, allGenres, allPlatforms, allMechanics] = await Promise.all([
+    prisma.game.count({ where }),
     prisma.game.findMany({
       where,
       orderBy,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
       relationLoadStrategy: 'join', // single JOIN instead of one round-trip per relation
       include: {
         genres: true,
@@ -77,6 +84,27 @@ export default async function Home({
     getPlatforms(),
     getMechanicsList(),
   ])
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const pageHref = (p: number) => {
+    const params = new URLSearchParams()
+    if (q) params.set('q', q)
+    if (genre) params.set('genre', genre)
+    if (platform) params.set('platform', platform)
+    if (mechanics.length > 0) params.set('mechanic', mechanics.join(','))
+    if (sort !== 'title') params.set('sort', sort)
+    if (minRating !== undefined) params.set('minRating', String(minRating))
+    if (freeOnly) params.set('free', '1')
+    if (p > 1) params.set('page', String(p))
+    const s = params.toString()
+    return s ? `/?${s}` : '/'
+  }
+
+  // Windowed page numbers around the current page.
+  const pageNumbers: number[] = []
+  const from = Math.max(1, page - 2)
+  const to = Math.min(totalPages, from + 4)
+  for (let p = Math.max(1, to - 4); p <= to; p++) pageNumbers.push(p)
 
   return (
     <PublicLayout>
@@ -118,7 +146,8 @@ export default async function Home({
           <div className="mb-6 flex items-center justify-between">
             <div className="text-zinc-400 text-sm font-medium flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-brand-cyan/50" />
-              Showing {games.length} matching game{games.length !== 1 && 's'}
+              {total} matching game{total !== 1 && 's'}
+              {totalPages > 1 && <span className="opacity-60">· page {page} of {totalPages}</span>}
             </div>
           </div>
 
@@ -127,6 +156,53 @@ export default async function Home({
               <GameCard key={game.id} game={game} />
             ))}
           </div>
+
+          {games.length === 0 && (
+            <div className="glass-panel rounded-2xl p-12 text-center text-zinc-500">
+              No games match these filters.
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+              {page > 1 && (
+                <Link href={pageHref(page - 1)} className="px-4 py-2 rounded-xl text-sm font-semibold bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                  ← Prev
+                </Link>
+              )}
+              {pageNumbers[0] > 1 && (
+                <>
+                  <Link href={pageHref(1)} className="px-3.5 py-2 rounded-xl text-sm font-semibold bg-white/5 border border-white/10 hover:bg-white/10">1</Link>
+                  <span className="px-1 text-zinc-600">…</span>
+                </>
+              )}
+              {pageNumbers.map(p => (
+                <Link
+                  key={p}
+                  href={pageHref(p)}
+                  className={`px-3.5 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                    p === page
+                      ? 'bg-brand-violet/20 border-brand-violet/40 text-white'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 text-zinc-300'
+                  }`}
+                >
+                  {p}
+                </Link>
+              ))}
+              {pageNumbers[pageNumbers.length - 1] < totalPages && (
+                <>
+                  <span className="px-1 text-zinc-600">…</span>
+                  <Link href={pageHref(totalPages)} className="px-3.5 py-2 rounded-xl text-sm font-semibold bg-white/5 border border-white/10 hover:bg-white/10">{totalPages}</Link>
+                </>
+              )}
+              {page < totalPages && (
+                <Link href={pageHref(page + 1)} className="px-4 py-2 rounded-xl text-sm font-semibold bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                  Next →
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </PublicLayout>
