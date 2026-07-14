@@ -18,6 +18,7 @@ export default async function MechanicDetailPage({
     include: {
       group: true,
       games: {
+        where: { game: { status: 'published' } },
         include: {
           game: true
         },

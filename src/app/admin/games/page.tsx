@@ -1,13 +1,14 @@
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
-import { deleteGame } from '../actions'
+import { deleteGame, setGameStatus } from '../actions'
 import { Button } from '@/components/ui/Button'
 import { BentoBox } from '@/components/ui/BentoBox'
 import { Pill } from '@/components/ui/Pill'
 
 export default async function GamesAdminPage() {
   const games = await prisma.game.findMany({
-    orderBy: { createdAt: 'desc' },
+    // Drafts (crawled, awaiting review) surface first as a review queue.
+    orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
     include: {
       genres: true,
       platforms: { include: { platform: true } },
@@ -15,12 +16,21 @@ export default async function GamesAdminPage() {
     }
   })
 
+  const draftCount = games.filter(g => g.status === 'draft').length
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <h1 className="text-3xl font-black uppercase tracking-widest m-0">
-          Manage Games
-        </h1>
+        <div>
+          <h1 className="text-3xl font-black uppercase tracking-widest m-0">
+            Manage Games
+          </h1>
+          {draftCount > 0 && (
+            <p className="mt-2 text-sm font-bold text-yellow-solid">
+              {draftCount} crawled draft{draftCount !== 1 && 's'} awaiting review (shown first)
+            </p>
+          )}
+        </div>
         <Button href="/admin/games/new">+ Add New Game</Button>
       </div>
 
@@ -37,8 +47,21 @@ export default async function GamesAdminPage() {
             
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
-                <h2 className="text-2xl font-black uppercase tracking-tight m-0 leading-none">{game.title}</h2>
                 <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-black uppercase tracking-tight m-0 leading-none">{game.title}</h2>
+                  <Pill color={game.status === 'published' ? 'default' : 'yellow'}>
+                    {game.status}
+                  </Pill>
+                </div>
+                <div className="flex items-center gap-3">
+                  <form action={async () => {
+                    'use server'
+                    await setGameStatus(game.id, game.status === 'published' ? 'draft' : 'published')
+                  }}>
+                    <button type="submit" className="font-bold uppercase tracking-wider text-sm text-green-solid hover:underline">
+                      {game.status === 'published' ? 'Unpublish' : 'Publish'}
+                    </button>
+                  </form>
                   <Link href={`/admin/games/${game.id}`} className="font-bold uppercase tracking-wider text-sm text-blue-solid hover:underline">
                     Edit
                   </Link>

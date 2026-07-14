@@ -19,7 +19,7 @@ export async function getRelatedGames(
   if (mechanicIds.length === 0) return [] as Array<{ game: any; shared: number }>
 
   const links = await prisma.gameMechanic.findMany({
-    where: { mechanicId: { in: mechanicIds }, gameId: { not: gameId } },
+    where: { mechanicId: { in: mechanicIds }, gameId: { not: gameId }, game: { status: 'published' } },
     select: { gameId: true },
   })
 
@@ -61,7 +61,7 @@ export async function getCoOccurringMechanics(mechanicId: string, limit = 8) {
   }
 
   const others = await prisma.gameMechanic.findMany({
-    where: { gameId: { in: gameIds }, mechanicId: { not: mechanicId } },
+    where: { gameId: { in: gameIds }, mechanicId: { not: mechanicId }, game: { status: 'published' } },
     include: { mechanic: true },
   })
 

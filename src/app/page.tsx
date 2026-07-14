@@ -25,7 +25,7 @@ export default async function Home({
     mechanics = resolvedParams.mechanic.flatMap(s => s.split(',')).filter(Boolean)
   }
 
-  const where: any = {}
+  const where: any = { status: 'published' }
 
   if (q) {
     where.title = { contains: q }

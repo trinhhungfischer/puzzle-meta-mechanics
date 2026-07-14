@@ -173,7 +173,10 @@ deliberately **not** inferred — they stay curated.
 
 Follow-ups (own stories when picked up):
 - **Data quality:** the Steam "Puzzle" tag is broad (pulls in e.g. Car Mechanic
-  Sim); add stricter filtering / a manual review-and-approve gate before publish.
+  Sim). ✅ **Review gate shipped (US-029):** crawled games land as `draft`,
+  hidden from the public viewer until an admin publishes them. Still open:
+  optional crawl-time filtering (min reviews, genre allow-list) to shrink the
+  review queue.
 - **Downloads metric:** not populated (Steam search has no owners); enrich per-app
   from SteamSpy `appdetails` if wanted.
 - **Scheduling + incremental refresh:** re-crawl to refresh metrics; respect rate

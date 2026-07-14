@@ -102,10 +102,12 @@ async function main() {
         lastCrawledAt: new Date(),
       }
 
+      // New crawled games land as "draft" for admin review; re-crawling an
+      // existing game refreshes metrics but never changes its publish status.
       const game = await prisma.game.upsert({
         where: { slug },
         update: { ...metrics, genres: { set: [], connect: genreConnect } },
-        create: { title: details.name, slug, ...metrics, genres: { connect: genreConnect } },
+        create: { title: details.name, slug, status: 'draft', ...metrics, genres: { connect: genreConnect } },
       })
 
       await prisma.gamePlatform.upsert({

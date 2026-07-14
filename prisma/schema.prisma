@@ -61,6 +61,10 @@ model Game {
   description String?
   coverUrl    String?
 
+  // Review gate: crawled games land as "draft" (hidden from the public viewer)
+  // and an admin publishes them. Manually created games default to "published".
+  status String @default("published") //  "draft" | "published"
+
   // Aggregate metrics for filtering/sorting (US-024).
   // These are blended, per-game rollups. When the crawler lands (US-025),
   // per-store values may live on GamePlatform with these kept as the aggregate.
@@ -81,6 +85,7 @@ model Game {
   @@index([ratingScore])
   @@index([downloads])
   @@index([isFree])
+  @@index([status])
 }
 
 model GameMechanic {

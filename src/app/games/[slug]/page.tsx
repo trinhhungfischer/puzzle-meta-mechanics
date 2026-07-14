@@ -14,8 +14,10 @@ export default async function GameDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const resolvedParams = await params;
-  const game = await prisma.game.findUnique({
-    where: { slug: resolvedParams.slug },
+  // Public detail: only published games are viewable (drafts 404 here; admin
+  // previews them through /admin).
+  const game = await prisma.game.findFirst({
+    where: { slug: resolvedParams.slug, status: 'published' },
     relationLoadStrategy: 'join',
     include: {
       genres: true,

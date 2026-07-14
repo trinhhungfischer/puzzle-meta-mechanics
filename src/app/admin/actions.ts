@@ -153,6 +153,18 @@ export async function deleteGame(id: string) {
   revalidatePath('/admin/games')
 }
 
+// Review gate: publish/unpublish a game (crawled games start as draft).
+export async function setGameStatus(id: string, status: 'draft' | 'published') {
+  const game = await prisma.game.update({
+    where: { id },
+    data: { status },
+    select: { slug: true },
+  })
+  revalidatePath('/admin/games')
+  revalidatePath('/')
+  revalidatePath(`/games/${game.slug}`)
+}
+
 // Metric fields shared by create/update. All optional; blank inputs stay null.
 type GameMetrics = {
   ratingScore: number | null;

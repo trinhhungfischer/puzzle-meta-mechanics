@@ -14,6 +14,7 @@ export default async function GenreDetailPage({
     where: { slug: resolvedParams.slug },
     include: {
       games: {
+        where: { status: 'published' },
         orderBy: { title: 'asc' },
         include: {
           genres: true,
