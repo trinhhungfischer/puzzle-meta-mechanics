@@ -113,6 +113,13 @@ export async function fetchAppDetails(appid: number): Promise<AppDetails | null>
   return entry?.success ? entry.data ?? null : null
 }
 
+export async function fetchSteamSpyTags(appid: number): Promise<Record<string, number> | null> {
+  const res = await fetchRetry(`https://steamspy.com/api.php?request=appdetails&appid=${appid}`, UA)
+  if (!res.ok) return null
+  const json = await res.json()
+  return json?.tags ?? null
+}
+
 export async function fetchReviewSummary(appid: number): Promise<ReviewSummary | null> {
   const res = await fetchRetry(
     `https://store.steampowered.com/appreviews/${appid}?json=1&language=all&purchase_type=all&num_per_page=0`,
