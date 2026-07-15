@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Button } from '@/components/ui/Button'
 
 export default function ImportPage() {
   const [jsonInput, setJsonInput] = useState('')
@@ -107,9 +108,9 @@ export default function ImportPage() {
           <strong>Dry Run</strong> (Validate only, do not write to database)
         </label>
 
-        <button type="submit" disabled={loading} className="btn" style={{ alignSelf: 'flex-start', fontSize: '1.1rem', padding: '1rem 2rem' }}>
-          {loading ? 'Processing...' : (dryRun ? 'Run Validation' : 'Execute Import')}
-        </button>
+        <Button type="submit" disabled={loading} className="self-start text-lg px-8 py-3">
+          {loading ? 'Importing...' : 'Upload & Import Data'}
+        </Button>
       </form>
 
       {status && (

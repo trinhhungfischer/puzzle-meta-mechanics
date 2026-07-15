@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { Button } from '@/components/ui/Button'
 import { createGroup, deleteGroup } from '../actions'
 import Link from 'next/link'
 
@@ -23,7 +24,7 @@ export default async function GroupsAdminPage() {
         <form action={createGroup} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <input type="text" name="name" placeholder="Group Name (e.g. Object Manipulation)" required style={{ flex: '1 1 200px' }} />
           <input type="text" name="description" placeholder="Description (optional)" style={{ flex: '2 1 300px' }} />
-          <button type="submit" className="btn">Add Group</button>
+          <Button type="submit">Add Group</Button>
         </form>
       </div>
 
@@ -43,9 +44,9 @@ export default async function GroupsAdminPage() {
                   'use server'
                   await deleteGroup(group.id)
                 }}>
-                  <button type="submit" title="Delete Group" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red', fontSize: '1.2rem' }}>
+                  <Button type="submit" variant="ghost" title="Delete Group" className="text-red-500 hover:text-red-400 p-2 text-xl hover:bg-red-500/10">
                     &times;
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>

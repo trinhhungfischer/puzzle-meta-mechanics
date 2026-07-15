@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Pill } from '@/components/ui/Pill'
+import { Button } from '@/components/ui/Button'
 import { bulkSetGameStatus, bulkDeleteGames } from '../actions'
 
 type Row = {
@@ -75,19 +76,16 @@ export default function GameReviewTable({ games }: { games: Row[] }) {
           Select page
         </label>
         <span className="text-sm font-bold opacity-70">{selected.size} selected</span>
-        <div className="flex gap-2 ml-auto">
-          <button onClick={publish} disabled={pending || selected.size === 0}
-            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-green-solid text-green-solid disabled:opacity-40 hover:bg-green-solid hover:text-box transition-colors">
-            Publish
-          </button>
-          <button onClick={unpublish} disabled={pending || selected.size === 0}
-            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-outline disabled:opacity-40 hover:bg-outline hover:text-box transition-colors">
-            Unpublish
-          </button>
-          <button onClick={remove} disabled={pending || selected.size === 0}
-            className="px-3 py-1.5 text-sm font-bold uppercase tracking-wider rounded-lg border-2 border-red-600 text-red-600 disabled:opacity-40 hover:bg-red-600 hover:text-white transition-colors">
-            Delete
-          </button>
+        <div className="flex gap-4">
+          <Button onClick={publish} disabled={pending || selected.size === 0} variant="primary">
+            Publish Selected ({selected.size})
+          </Button>
+          <Button onClick={unpublish} disabled={pending || selected.size === 0} variant="secondary">
+            Unpublish Selected
+          </Button>
+          <Button onClick={remove} disabled={pending || selected.size === 0} variant="danger">
+            Delete Selected
+          </Button>
         </div>
       </div>
 

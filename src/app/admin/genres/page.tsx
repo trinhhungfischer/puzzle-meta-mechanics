@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { Button } from '@/components/ui/Button'
 import { createGenre, deleteGenre } from '../actions'
 import Link from 'next/link'
 
@@ -23,7 +24,7 @@ export default async function GenresAdminPage() {
         <form action={createGenre} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <input type="text" name="name" placeholder="Genre Name (e.g. Match-3)" required style={{ flex: '1 1 200px' }} />
           <input type="text" name="description" placeholder="Description (optional)" style={{ flex: '2 1 300px' }} />
-          <button type="submit" className="btn">Add Genre</button>
+          <Button type="submit">Add Genre</Button>
         </form>
       </div>
 
@@ -43,9 +44,9 @@ export default async function GenresAdminPage() {
                   'use server'
                   await deleteGenre(genre.id)
                 }}>
-                  <button type="submit" title="Delete Genre" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red', fontSize: '1.2rem' }}>
+                  <Button type="submit" variant="ghost" title="Delete Genre" className="text-red-500 hover:text-red-400 p-2 text-xl hover:bg-red-500/10">
                     &times;
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { updateGenre } from '../../actions'
 import { notFound } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
 
 export default async function EditGenrePage({
@@ -34,7 +35,7 @@ export default async function EditGenrePage({
         }} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <input type="text" name="name" defaultValue={genre.name} placeholder="Genre Name (e.g. Match-3)" required style={{ flex: '1 1 200px' }} />
           <input type="text" name="description" defaultValue={genre.description || ''} placeholder="Description (optional)" style={{ flex: '2 1 300px' }} />
-          <button type="submit" className="btn">Save Changes</button>
+          <Button type="submit">Save Changes</Button>
         </form>
       </div>
     </div>

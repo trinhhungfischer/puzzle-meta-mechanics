@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { Button } from '@/components/ui/Button'
 import { createPlatform, deletePlatform } from '../actions'
 import Link from 'next/link'
 
@@ -22,7 +23,7 @@ export default async function PlatformsAdminPage() {
         <div className="bento-header">Add New Platform</div>
         <form action={createPlatform} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <input type="text" name="name" placeholder="Platform Name (e.g. PC/Steam)" required style={{ flex: '1 1 200px' }} />
-          <button type="submit" className="btn">Add Platform</button>
+          <Button type="submit">Add Platform</Button>
         </form>
       </div>
 
@@ -42,9 +43,9 @@ export default async function PlatformsAdminPage() {
                   'use server'
                   await deletePlatform(platform.id)
                 }}>
-                  <button type="submit" title="Delete Platform" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red', fontSize: '1.2rem' }}>
+                  <Button type="submit" variant="ghost" title="Delete Platform" className="text-red-500 hover:text-red-400 p-2 text-xl hover:bg-red-500/10">
                     &times;
-                  </button>
+                  </Button>
                 </form>
               </div>
             </div>

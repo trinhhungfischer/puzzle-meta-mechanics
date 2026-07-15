@@ -126,9 +126,9 @@ export default async function GamesAdminPage({
             <option value="title">Title (A-Z)</option>
           </select>
         </div>
-        <button type="submit" className="px-4 py-2 font-bold uppercase tracking-wider text-sm rounded-lg border-2 border-blue-solid text-blue-solid hover:bg-blue-solid hover:text-box transition-colors">
-          Apply
-        </button>
+        <Button type="submit" variant="primary">
+          Search
+        </Button>
         {(q || platform || genre) && (
           <Link href={qs({ q: '', platform: '', genre: '', page: 1 })} className="px-4 py-2 font-bold uppercase tracking-wider text-sm opacity-70 hover:opacity-100">
             Clear

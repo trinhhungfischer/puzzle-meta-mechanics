@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { updateGroup } from '../../actions'
 import { notFound } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
 
 export default async function EditGroupPage({
@@ -34,7 +35,7 @@ export default async function EditGroupPage({
         }} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <input type="text" name="name" defaultValue={group.name} placeholder="Group Name (e.g. Object Manipulation)" required style={{ flex: '1 1 200px' }} />
           <input type="text" name="description" defaultValue={group.description || ''} placeholder="Description (optional)" style={{ flex: '2 1 300px' }} />
-          <button type="submit" className="btn">Save Changes</button>
+          <Button type="submit">Save Changes</Button>
         </form>
       </div>
     </div>

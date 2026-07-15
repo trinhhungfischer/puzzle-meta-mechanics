@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { updatePlatform } from '../../actions'
 import { notFound } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
 
 export default async function EditPlatformPage({
@@ -33,7 +34,7 @@ export default async function EditPlatformPage({
           await updatePlatform(platform.id, formData)
         }} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <input type="text" name="name" defaultValue={platform.name} placeholder="Platform Name (e.g. PC/Steam)" required style={{ flex: '1 1 200px' }} />
-          <button type="submit" className="btn">Save Changes</button>
+          <Button type="submit">Save Changes</Button>
         </form>
       </div>
     </div>
