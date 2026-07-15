@@ -77,7 +77,7 @@ export default async function GamesAdminPage({
         <h1 className="text-3xl font-black uppercase tracking-widest m-0">Review Games</h1>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <CrawlButtons />
-          <Button href="/admin/games/new">+ Add New Game</Button>
+          <Button href="/admin/games/new" variant="primary">+ Add New Game</Button>
         </div>
       </div>
 
@@ -87,8 +87,8 @@ export default async function GamesAdminPage({
           <Link key={val} href={qs({ status: val, page: 1 })}
             className={`px-4 py-2 font-bold uppercase tracking-wider text-sm rounded-lg border-2 transition-colors ${
               status === val
-                ? 'bg-brand-violet border-brand-violet text-white shadow-[0_0_20px_-4px_rgba(139,92,246,0.6)]'
-                : 'border-white/15 text-zinc-400 hover:text-white hover:border-white/30'
+                ? 'bg-brand-accent border-brand-accent text-zinc-950 shadow-[0_0_20px_-4px_rgba(16,185,129,0.4)]'
+                : 'border-white/10 text-zinc-400 hover:text-white hover:bg-white/5'
             }`}>
             {label} <span className="opacity-70">({count})</span>
           </Link>
@@ -130,9 +130,9 @@ export default async function GamesAdminPage({
           Search
         </Button>
         {(q || platform || genre) && (
-          <Link href={qs({ q: '', platform: '', genre: '', page: 1 })} className="px-4 py-2 font-bold uppercase tracking-wider text-sm opacity-70 hover:opacity-100">
+          <Button href={qs({ q: '', platform: '', genre: '', page: 1 })} variant="ghost">
             Clear
-          </Link>
+          </Button>
         )}
       </form>
 
@@ -146,11 +146,11 @@ export default async function GamesAdminPage({
       {totalPages > 1 && (
         <div className="flex justify-between items-center mt-6">
           {page > 1
-            ? <Link href={qs({ page: page - 1 })} className="px-4 py-2 font-bold uppercase text-sm rounded-lg border-2 border-outline hover:bg-outline hover:text-box">← Prev</Link>
+            ? <Button href={qs({ page: page - 1 })} variant="secondary">← Prev</Button>
             : <span />}
           <span className="text-sm font-bold opacity-70">{page} / {totalPages}</span>
           {page < totalPages
-            ? <Link href={qs({ page: page + 1 })} className="px-4 py-2 font-bold uppercase text-sm rounded-lg border-2 border-outline hover:bg-outline hover:text-box">Next →</Link>
+            ? <Button href={qs({ page: page + 1 })} variant="secondary">Next →</Button>
             : <span />}
         </div>
       )}

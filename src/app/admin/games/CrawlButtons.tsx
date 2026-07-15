@@ -38,10 +38,10 @@ export function CrawlButtons() {
   return (
     <div className="flex flex-col gap-4 mt-2 sm:mt-0 w-full relative z-10">
       <div className="flex gap-4">
-        <Button disabled={isRunning} onClick={() => triggerCrawl('steam')} variant="secondary" className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 border-blue-600/30">
+        <Button disabled={isRunning} onClick={() => triggerCrawl('steam')} variant="secondary">
           Run Steam Crawl
         </Button>
-        <Button disabled={isRunning} onClick={() => triggerCrawl('mobile')} variant="secondary" className="bg-green-600/20 text-green-400 hover:bg-green-600/40 border-green-600/30">
+        <Button disabled={isRunning} onClick={() => triggerCrawl('mobile')} variant="secondary">
           Run Mobile Crawl
         </Button>
       </div>
