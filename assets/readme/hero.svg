@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="100%">
+  <!-- Background -->
+  <rect width="1200" height="400" fill="#0f172a" rx="16" />
+  
+  <!-- Subtle Grid Motif -->
+  <g stroke="#1e293b" stroke-width="2" fill="none">
+    <path d="M0,50 L1200,50 M0,100 L1200,100 M0,150 L1200,150 M0,200 L1200,200 M0,250 L1200,250 M0,300 L1200,300 M0,350 L1200,350" opacity="0.3"/>
+    <path d="M100,0 L100,400 M200,0 L200,400 M300,0 L300,400 M400,0 L400,400 M500,0 L500,400 M600,0 L600,400 M700,0 L700,400 M800,0 L800,400 M900,0 L900,400 M1000,0 L1000,400 M1100,0 L1100,400" opacity="0.3"/>
+  </g>
+
+  <!-- Network Nodes Motif (right side) -->
+  <g transform="translate(800, 160)">
+    <circle cx="0" cy="50" r="8" fill="#3b82f6" />
+    <circle cx="150" cy="0" r="6" fill="#10b981" />
+    <circle cx="150" cy="100" r="6" fill="#10b981" />
+    <circle cx="280" cy="-40" r="4" fill="#64748b" />
+    <circle cx="280" cy="20" r="4" fill="#64748b" />
+    <circle cx="280" cy="80" r="4" fill="#64748b" />
+    <circle cx="280" cy="140" r="4" fill="#64748b" />
+    
+    <!-- connecting lines -->
+    <path d="M0,50 L150,0 M0,50 L150,100" stroke="#3b82f6" stroke-width="2" opacity="0.6" />
+    <path d="M150,0 L280,-40 M150,0 L280,20 M150,100 L280,80 M150,100 L280,140" stroke="#10b981" stroke-width="2" opacity="0.4" />
+    
+    <text x="0" y="75" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="12" text-anchor="middle" letter-spacing="1">GENRE</text>
+    <text x="150" y="125" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="12" text-anchor="middle" letter-spacing="1">GROUP</text>
+    <text x="280" y="165" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="12" text-anchor="middle" letter-spacing="1">MECHANIC</text>
+  </g>
+
+  <!-- Text -->
+  <g transform="translate(80, 200)">
+    <text x="0" y="-30" fill="#3b82f6" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="600" letter-spacing="2">TAXONOMY DB</text>
+    <text x="0" y="15" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="56" font-weight="800" letter-spacing="-1">Puzzle Meta-Mechanic</text>
+    <text x="0" y="65" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="400">A reference catalog of digital puzzle games</text>
+    <text x="0" y="95" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="400">and the atomic mechanics they are built from.</text>
+  </g>
+</svg>

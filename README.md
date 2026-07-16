@@ -1,9 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="assets/readme/hero.svg" alt="Puzzle Meta-Mechanic Catalog Hero Banner" width="100%" />
+</div>
+
+<br />
+
+**Puzzle Meta-Mechanic** is a reference catalog of digital puzzle games and the atomic mechanics they are built from. Initially designed as an internal tool, it serves to map the taxonomy of puzzle games by breaking them down into their smallest indivisible units of interaction.
+
+## What is this?
+
+This database maps the complex relationships between puzzle games and their underlying mechanics. It is designed for game designers, developers, and puzzle enthusiasts looking to understand how puzzle games are constructed.
+
+### Core Concepts
+
+- **Game**: A released digital puzzle game title (e.g. Braid, Portal) cataloged with its platforms, genres, and mechanics.
+- **Mechanic** (Atomic Mechanic): The smallest indivisible unit of puzzle interaction (e.g. Push, Pull, Frictionless Slide). Always belongs to exactly one Mechanic Group.
+- **Mechanic Group**: A family of related atomic mechanics (e.g. Object Manipulation, Spatial Navigation & Movement).
+- **Genre**: A macro-classification of puzzle games (e.g. Match-3, Sokoban-like, Merge). A Genre correlates with mechanics but does not contain them.
+
+## Data Structure
+
+The catalog content is driven by a taxonomy stored in `private/`. It links games to their mechanics via **Mechanic Usage** relationships, noting whether a mechanic acts as the core gameplay loop, a secondary feature, or a unique twist.
 
 ## Getting Started
 
-First, run the development server:
+This catalog is built with **Next.js** and **Prisma**. To run the catalog locally and explore the database:
 
+1. **Install dependencies**
+```bash
+npm install
+```
+
+2. **Run the development server**
 ```bash
 npm run dev
 # or
@@ -14,23 +41,13 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Explore**
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the catalog.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+- Examine `CONTEXT.md` for the exact definitions of the taxonomy.
+- Explore the Next.js frontend in the `src/` directory.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*If you find this project helpful, consider starring the repository!*
