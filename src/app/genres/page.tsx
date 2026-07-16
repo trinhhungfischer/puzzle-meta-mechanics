@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+export const revalidate = 3600;
 import Link from 'next/link'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { BentoBox } from '@/components/ui/BentoBox'

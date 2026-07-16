@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import { GameCard } from './GameCard'
 
@@ -102,42 +103,53 @@ export async function GameGrid({
     sort === 'year' ? { releaseYear: { sort: 'desc', nulls: 'last' } } :
     { title: 'asc' }
 
-  const [total, games] = await Promise.all([
-    prisma.game.count({ where }),
-    prisma.game.findMany({
-      where,
-      orderBy,
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      relationLoadStrategy: 'join',
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        coverUrl: true,
-        ratingScore: true,
-        downloads: true,
-        isFree: true,
-        price: true,
-        genres: { select: { id: true, name: true, slug: true } },
-        platforms: { 
-          select: { 
-            platformId: true, 
-            platform: { select: { id: true, name: true, slug: true } } 
-          } 
-        },
-        mechanics: { 
-          take: 6,
-          orderBy: { role: 'asc' },
-          select: { 
-            mechanicId: true, 
-            role: true,
-            mechanic: { select: { id: true, name: true, slug: true } } 
-          } 
-        }
-      }
-    })
-  ])
+  const getCachedGames = unstable_cache(
+    async (whereObj: any, orderByObj: any, skip: number, take: number) => {
+      return Promise.all([
+        prisma.game.count({ where: whereObj }),
+        prisma.game.findMany({
+          where: whereObj,
+          orderBy: orderByObj,
+          skip,
+          take,
+          relationLoadStrategy: 'join',
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            coverUrl: true,
+            ratingScore: true,
+            downloads: true,
+            isFree: true,
+            price: true,
+            genres: { select: { id: true, name: true, slug: true } },
+            platforms: { 
+              select: { 
+                platformId: true, 
+                platform: { select: { id: true, name: true, slug: true } } 
+              } 
+            },
+            mechanics: { 
+              take: 6,
+              orderBy: { role: 'asc' },
+              select: { 
+                mechanicId: true, 
+                role: true,
+                mechanic: { select: { id: true, name: true, slug: true } } 
+              } 
+            }
+          }
+        })
+      ])
+    },
+    ['game-grid-search'],
+    {
+      revalidate: 3600,
+      tags: ['games']
+    }
+  )
+
+  const [total, games] = await getCachedGames(where, orderBy, (page - 1) * PAGE_SIZE, PAGE_SIZE)
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const pageHref = (p: number) => {
