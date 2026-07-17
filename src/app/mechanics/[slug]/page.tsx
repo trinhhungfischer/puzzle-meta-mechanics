@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma'
-export const revalidate = 3600;
+import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -37,27 +37,37 @@ export default async function MechanicDetailPage({
   const page = Math.max(1, parseInt(resolvedSearch.page || '1', 10) || 1)
   const PAGE_SIZE = 24
 
-  const mechanic = await prisma.mechanic.findUnique({
-    where: { slug: resolvedParams.slug },
-    include: { group: true }
-  })
+  const getCachedMechanicData = unstable_cache(
+    async (slug: string, skip: number, take: number) => {
+      const mechanic = await prisma.mechanic.findUnique({
+        where: { slug },
+        include: { group: true }
+      })
+      if (!mechanic) return { mechanic: null, totalGames: 0, gamesUsing: [] }
+
+      const [totalGames, gamesUsing] = await Promise.all([
+        prisma.gameMechanic.count({ 
+          where: { mechanicId: mechanic.id, game: { status: 'published' } } 
+        }),
+        prisma.gameMechanic.findMany({
+          where: { mechanicId: mechanic.id, game: { status: 'published' } },
+          include: { game: true },
+          orderBy: { game: { title: 'asc' } },
+          skip,
+          take,
+        })
+      ])
+      return { mechanic, totalGames, gamesUsing }
+    },
+    ['mechanic-detail-games'],
+    { revalidate: 3600, tags: ['mechanics', 'games'] }
+  )
+
+  const { mechanic, totalGames, gamesUsing } = await getCachedMechanicData(resolvedParams.slug, (page - 1) * PAGE_SIZE, PAGE_SIZE)
 
   if (!mechanic) {
     notFound()
   }
-
-  const [totalGames, gamesUsing] = await Promise.all([
-    prisma.gameMechanic.count({ 
-      where: { mechanicId: mechanic.id, game: { status: 'published' } } 
-    }),
-    prisma.gameMechanic.findMany({
-      where: { mechanicId: mechanic.id, game: { status: 'published' } },
-      include: { game: true },
-      orderBy: { game: { title: 'asc' } },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    })
-  ])
 
   const totalPages = Math.max(1, Math.ceil(totalGames / PAGE_SIZE))
   const pageNumbers: number[] = []

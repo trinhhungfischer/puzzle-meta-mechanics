@@ -1,5 +1,4 @@
 import prisma from '@/lib/prisma'
-export const revalidate = 3600;
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { MechanicCard } from '@/components/ui/MechanicCard'
 import { MechanicBoard } from '@/components/ui/MechanicBoard'

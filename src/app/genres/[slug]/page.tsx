@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma'
-export const revalidate = 3600;
+import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -35,31 +35,38 @@ export default async function GenreDetailPage({
   const page = Math.max(1, parseInt(resolvedSearch.page || '1', 10) || 1)
   const PAGE_SIZE = 24
 
-  const genre = await prisma.genre.findUnique({
-    where: { slug: resolvedParams.slug },
-  })
+  const getCachedGenreData = unstable_cache(
+    async (slug: string, skip: number, take: number) => {
+      const genre = await prisma.genre.findUnique({ where: { slug } })
+      if (!genre) return { genre: null, total: 0, games: [] }
+
+      const where = { status: 'published', genres: { some: { slug } } }
+      const [total, games] = await Promise.all([
+        prisma.game.count({ where }),
+        prisma.game.findMany({
+          where,
+          orderBy: { title: 'asc' },
+          skip,
+          take,
+          relationLoadStrategy: 'join',
+          include: {
+            genres: true,
+            platforms: { include: { platform: true } },
+            mechanics: { include: { mechanic: true } }
+          }
+        })
+      ])
+      return { genre, total, games }
+    },
+    ['genre-detail-games'],
+    { revalidate: 3600, tags: ['genres', 'games'] }
+  )
+
+  const { genre, total, games } = await getCachedGenreData(resolvedParams.slug, (page - 1) * PAGE_SIZE, PAGE_SIZE)
 
   if (!genre) {
     notFound()
   }
-
-  const where = { status: 'published', genres: { some: { slug: genre.slug } } }
-
-  const [total, games] = await Promise.all([
-    prisma.game.count({ where }),
-    prisma.game.findMany({
-      where,
-      orderBy: { title: 'asc' },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      relationLoadStrategy: 'join',
-      include: {
-        genres: true,
-        platforms: { include: { platform: true } },
-        mechanics: { include: { mechanic: true } }
-      }
-    })
-  ])
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const pageNumbers: number[] = []
